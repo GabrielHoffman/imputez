@@ -7,7 +7,7 @@
 readLDMatrix(df_files)
 }
 \arguments{
-\item{\code{f_files}}{data.frame of file info: chrom, BIM, LD}
+\item{df_files}{data.frame of file info: chrom, BIM, LD}
 }
 \value{
 list with one entry per chromosome with \code{C.ld} storing the LD correlation matrix and \code{gr_position} storing the variant information

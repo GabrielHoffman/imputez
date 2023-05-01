@@ -16,8 +16,16 @@ impute_z(z, Sigma, i, lambda = 0.1)
 \item{lambda}{value used to shrink correlation matrix}
 }
 \value{
-\code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, standard error \code{se} of the impute z-score, and metric of accuracy \code{r2.pred}.
+\code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, variance \code{sigSq} of the impute z-score, and metric of accuracy \code{r2.pred}.
 }
 \description{
 Impute z-score from a missing test based on z-scores for other tests, and the correlation matrix between z-scores
+}
+\details{
+Implements method by Pasaniuc, et al. (2014).
+}
+\references{
+{
+  \insertRef{pasaniuc2014fast}{imputez}
+}
 }

@@ -8,9 +8,15 @@
 #' @param i index of z-scores to impute
 #' @param lambda value used to shrink correlation matrix
 #' 
-#' @return \code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, standard error \code{se} of the impute z-score, and metric of accuracy \code{r2.pred}.
+#' @details Implements method by Pasaniuc, et al. (2014).
+#'
+#' @return \code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, variance \code{sigSq} of the impute z-score, and metric of accuracy \code{r2.pred}.
 #' 
+#' @references{
+#'   \insertRef{pasaniuc2014fast}{imputez}
+#' }
 #' @importFrom Matrix Diagonal
+#' @importFrom methods is
 #' @export
 impute_z = function(z, Sigma, i, lambda = 0.1){
 	if( is(Sigma, "sparseMatrix") ){
@@ -29,17 +35,25 @@ impute_z = function(z, Sigma, i, lambda = 0.1){
 	z_i = crossprod(W, z[-i])
 
 	# compute standard error for each imputed z-score
-	sig = Sigma.shrink[i,i] - (crossprod(W,Sigma.shrink[-i, -i]) %*% W)
+	sigSq = Sigma.shrink[i,i] - (crossprod(W,Sigma.shrink[-i, -i]) %*% W)
 	
 	data.frame(ID = names(z)[i], 
 						z.stat = as.numeric(z_i), 
-						se = as.numeric(sig),
-						r2.pred = 1 - as.numeric(sig))
+						sigSq = as.numeric(sigSq),
+						r2.pred = 1 - as.numeric(sigSq))
 }
 
 
 
-# Instead do reverse diagonal
+#' Get complete subset of correlation matrix
+#' 
+#' Get complete subset of correlation matrix so that no entries are zero
+#' 
+#' @param S correlation matrix
+#' @param mid index of target variant
+#' 
+#' @return begin and end indeces of completely filled matrix
+#' 
 #' @export
 pairwiseCompleteWindow = function(S, mid){
 	# Reduce window until most distance SNPs have LD computed
@@ -70,6 +84,8 @@ pairwiseCompleteWindow = function(S, mid){
 #' @export
 constructLD = function(dfld, incl){
 
+	idx_A = idx_B = SNP_A = NULL
+
 	inclgd = expand.grid(incl, incl)
 
 	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = NULL]
@@ -96,8 +112,16 @@ constructLD = function(dfld, incl){
 #' @param idx indeces of \code{z} to impute
 #' @param maxWindowSize max window size around target variant to keep
 #' 
+#' @details Implements method by Pasaniuc, et al. (2014).
+#' 
+#' @references{
+#'   \insertRef{pasaniuc2014fast}{imputez}
+#' }
+#' 
 #' @return \code{data.frame} storing imputed results
+#' 
 #' @importFrom progress progress_bar
+#' @importFrom Rdpack reprompt
 #' @export
 run_imputez = function( z, dfld, idx, maxWindowSize = 200){
 

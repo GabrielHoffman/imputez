@@ -21,3 +21,11 @@ run_imputez(z, dfld, idx, maxWindowSize = 200)
 \description{
 Impute many z-statistics given observed z-statistics and \code{data.table} of LD.
 }
+\details{
+Implements method by Pasaniuc, et al. (2014).
+}
+\references{
+{
+  \insertRef{pasaniuc2014fast}{imputez}
+}
+}
