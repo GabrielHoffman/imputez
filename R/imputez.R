@@ -87,6 +87,59 @@ constructLD = function(dfld, incl){
 	C
 }
 
+#' Impute many z-statistics 
+#' 
+#' Impute many z-statistics given observed z-statistics and \code{data.table} of LD.
+#' 
+#' @param z vector of observed z-statistics with unobserved storing value \code{NA}
+#' @param dfld \code{data.table} storing LD information
+#' @param idx indeces of \code{z} to impute
+#' @param maxWindowSize max window size around target variant to keep
+#' 
+#' @return \code{data.frame} storing imputed results
+#' @importFrom progress progress_bar
+#' @export
+run_imputez = function( z, dfld, idx, maxWindowSize = 200){
+
+	pb <- progress_bar$new(
+		format = "  imputing [:bar] :percent eta: :eta",
+		total = length(idx), clear = FALSE, width= 60)
+
+	df_z = lapply(idx, function(i){
+		id = names(z)[i]
+
+		incl = seq(pmax(1, i-maxWindowSize), 
+					pmin(length(z), i + maxWindowSize))
+		z_local = z[incl]
+		Sigma_local = as.matrix( constructLD(dfld, incl))
+
+		# Reduce window until most distance SNPs have LD computed
+		# This ensures that Sigma is positive definite
+		mid = which(names(z_local) == id)
+		window = pairwiseCompleteWindow( Sigma_local, mid)
+
+		incl2 = seq(window[1], window[2])
+		Sigma_local = Sigma_local[incl2, incl2]
+		z_local = z_local[incl2]
+
+		# keep only variants with observed z-score 
+		# or the target variant to be imputed
+		keep = unique(c(id, names(z_local)[!is.na(z_local)]))
+		Sigma_local = Sigma_local[keep,keep]
+		z_local = z_local[keep]
+
+		k = which(names(z_local) == id)
+		df = impute_z(z_local, Sigma_local, k, lambda=0.1)
+		pb$tick()
+		data.frame(df, width=window[2] - window[1])
+	})
+
+	do.call(rbind, df_z)
+}
+
+
+
+
 
 
 

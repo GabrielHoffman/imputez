@@ -7,7 +7,7 @@
 #' 
 #' @return list with one entry per chromosome with \code{C.ld} storing the LD correlation matrix and \code{gr_position} storing the variant information
 #' 
-#' @importFrom data.table fread
+#' @importFrom data.table fread setkey
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @importFrom Matrix sparseMatrix
@@ -54,21 +54,18 @@ readLDMatrix = function( df_files){
 		dfld$idx_B = match(dfld$SNP_B, df_position$name)
 		setkey(dfld, 'idx_A', 'idx_B')
 
-		N = nrow(df_position)
+		# N = nrow(df_position)
 
-		# Create sparse matrix
-		C = sparseMatrix( i = dfld$idx_A,
-						j = dfld$idx_B,
-						x = dfld$R,
-						symmetric = TRUE, 
-						dims = c(N,N), 
-						dimnames=list(df_position$name, df_position$name) )
-
-		# df_pairs = with(dfld, tibble(SNP_A=factor(SNP_A), SNP_B=factor(SNP_B)))
-		# rm(dfld)
+		# # Create sparse matrix
+		# C = sparseMatrix( i = dfld$idx_A,
+		# 				j = dfld$idx_B,
+		# 				x = dfld$R,
+		# 				symmetric = TRUE, 
+		# 				dims = c(N,N), 
+		# 				dimnames=list(df_position$name, df_position$name) )
 
 		# return LD matrix and variant annotation
-		list(C.ld = C, 
+		list(#C.ld = C, 
 			dfld = dfld,
 			gr = gr_position)
 	})
