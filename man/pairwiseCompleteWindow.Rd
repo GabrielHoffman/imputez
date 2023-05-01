@@ -12,7 +12,7 @@ pairwiseCompleteWindow(S, mid)
 \item{mid}{index of target variant}
 }
 \value{
-begin and end indeces of completely filled matrix
+begin and end indeces of completely filled matrixq
 }
 \description{
 Get complete subset of correlation matrix so that no entries are zero

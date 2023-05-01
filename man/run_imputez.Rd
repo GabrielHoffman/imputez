@@ -4,7 +4,7 @@
 \alias{run_imputez}
 \title{Impute many z-statistics}
 \usage{
-run_imputez(z, dfld, idx, maxWindowSize = 200)
+run_imputez(z, dfld, idx, maxWindowSize = 200, quiet = FALSE)
 }
 \arguments{
 \item{z}{vector of observed z-statistics with unobserved storing value \code{NA}}
@@ -14,6 +14,8 @@ run_imputez(z, dfld, idx, maxWindowSize = 200)
 \item{idx}{indeces of \code{z} to impute}
 
 \item{maxWindowSize}{max window size around target variant to keep}
+
+\item{quiet}{default FALSE.  If TRUE, suppress progress bar}
 }
 \value{
 \code{data.frame} storing imputed results

@@ -9,7 +9,7 @@ Description: Impute z-statistics for missing tests using observed z-statistics a
 License: GPL-2
 Encoding: UTF-8
 URL: https://GabrielHoffman.github.io/imputez
-BugReports: https://GabrielHoffman.github.io/imputez/issues
+BugReports: https://github.com/GabrielHoffman/imputez/issues
 Depends:
     R (>= 4.1.0)
 Imports:

@@ -52,7 +52,7 @@ impute_z = function(z, Sigma, i, lambda = 0.1){
 #' @param S correlation matrix
 #' @param mid index of target variant
 #' 
-#' @return begin and end indeces of completely filled matrix
+#' @return begin and end indeces of completely filled matrixq
 #' 
 #' @export
 pairwiseCompleteWindow = function(S, mid){
@@ -111,6 +111,7 @@ constructLD = function(dfld, incl){
 #' @param dfld \code{data.table} storing LD information
 #' @param idx indeces of \code{z} to impute
 #' @param maxWindowSize max window size around target variant to keep
+#' @param quiet default FALSE.  If TRUE, suppress progress bar
 #' 
 #' @details Implements method by Pasaniuc, et al. (2014).
 #' 
@@ -123,17 +124,19 @@ constructLD = function(dfld, incl){
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
 #' @export
-run_imputez = function( z, dfld, idx, maxWindowSize = 200){
+run_imputez = function( z, dfld, idx, maxWindowSize = 200, quiet=FALSE){
 
-	pb <- progress_bar$new(
-		format = "  imputing [:bar] :percent eta: :eta",
-		total = length(idx), clear = FALSE, width= 60)
+	if( ! quiet ){
+		pb <- progress_bar$new(
+			format = "  imputing [:bar] :percent eta: :eta",
+			total = length(idx), clear = FALSE, width= 60)
+	}
 
 	df_z = lapply(idx, function(i){
 		id = names(z)[i]
 
-		incl = seq(pmax(1, i-maxWindowSize), 
-					pmin(length(z), i + maxWindowSize))
+		# get window including maxWindowSize observed z-scores
+		incl = get_window(z, i, id, maxWindowSize)
 		z_local = z[incl]
 		Sigma_local = as.matrix( constructLD(dfld, incl))
 
@@ -154,20 +157,27 @@ run_imputez = function( z, dfld, idx, maxWindowSize = 200){
 
 		k = which(names(z_local) == id)
 		df = impute_z(z_local, Sigma_local, k, lambda=0.1)
-		pb$tick()
+		if( ! quiet ) pb$tick()
 		data.frame(df, width=window[2] - window[1])
 	})
 
 	do.call(rbind, df_z)
 }
 
+# replace 
 
+# incl = seq(pmax(1, i-maxWindowSize), 
+# 			pmin(length(z), i + maxWindowSize))
+get_window = function(z, i, id, maxWindowSize){
+	a = cumsum(!is.na(z[seq(1, i)]))
+	b = cumsum(!is.na(z[seq(i,length(z))]))
 
+	id1 = which.min(abs(a -(a[id] - maxWindowSize)))
+	id2 = which.min(abs(b - maxWindowSize))
 
-
-
-
-
+	idx = which(names(z) %in% c(names(id1), names(id2)))
+	seq(idx[1], idx[2])
+}
 
 
 
