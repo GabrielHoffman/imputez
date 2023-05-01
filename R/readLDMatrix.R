@@ -52,6 +52,7 @@ readLDMatrix = function( df_files){
 		# get index for each marker
 		dfld$idx_A = match(dfld$SNP_A, df_position$name)
 		dfld$idx_B = match(dfld$SNP_B, df_position$name)
+		setkeyv(dfld, c('idx_A', 'idx_B'))
 
 		N = nrow(df_position)
 
@@ -64,10 +65,11 @@ readLDMatrix = function( df_files){
 						dimnames=list(df_position$name, df_position$name) )
 
 		# df_pairs = with(dfld, tibble(SNP_A=factor(SNP_A), SNP_B=factor(SNP_B)))
-		rm(dfld)
+		# rm(dfld)
 
 		# return LD matrix and variant annotation
 		list(C.ld = C, 
+			dfld = dfld,
 			gr = gr_position)
 	})
 

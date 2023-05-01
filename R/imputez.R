@@ -49,11 +49,48 @@ pairwiseCompleteWindow = function(S, mid){
 
 	while(S[a,b] == 0){
 		if( alterate )
-			a <- min(a + 1, mid)
+			a <- pmin(a + 1, mid)
 		else
-			b <- max(b - 1, mid)
+			b <- pmax(b - 1, mid)
 		alterate = ! alterate
 	}
 
 	c(a,b)
 }
+
+#' Construct LD matrix from data.table
+#' 
+#' Construct LD matrix from data.table
+#' 
+#' @param dfld \code{data.table} storing LD information
+#' @param incl indeces to include 
+#' 
+#' @return \code{sparseMatrix} storing LD between variants
+#' @importFrom Matrix sparseMatrix
+#' 
+constructLD = function(dfld, incl){
+
+	inclgd = expand.grid(incl, incl)
+
+	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2)]
+	dfldsub = dfldsub[!is.na(dfldsub$R),]
+
+	rng = dfldsub[,range(idx_A, idx_B)]
+
+	N = rng[2] - rng[1] + 1
+	IDs = dfldsub[,SNP_A[unique(idx_A)]]
+
+	C = sparseMatrix( i = dfldsub$idx_A - min(dfldsub$idx_A) + 1,
+							j = dfldsub$idx_B - min(dfldsub$idx_B) + 1,
+							x = dfldsub$R,
+							symmetric = TRUE, 
+							dims = c(N,N), 
+							dimnames=list(IDs, IDs) )
+	C
+}
+
+
+
+
+
+
