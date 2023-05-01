@@ -67,18 +67,16 @@ pairwiseCompleteWindow = function(S, mid){
 #' 
 #' @return \code{sparseMatrix} storing LD between variants
 #' @importFrom Matrix sparseMatrix
-#' 
+#' @export
 constructLD = function(dfld, incl){
 
 	inclgd = expand.grid(incl, incl)
 
-	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2)]
-	dfldsub = dfldsub[!is.na(dfldsub$R),]
+	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = NULL]
 
 	rng = dfldsub[,range(idx_A, idx_B)]
-
 	N = rng[2] - rng[1] + 1
-	IDs = dfldsub[,SNP_A[unique(idx_A)]]
+	IDs = dfldsub[,unique(SNP_A)]
 
 	C = sparseMatrix( i = dfldsub$idx_A - min(dfldsub$idx_A) + 1,
 							j = dfldsub$idx_B - min(dfldsub$idx_B) + 1,
@@ -88,6 +86,9 @@ constructLD = function(dfld, incl){
 							dimnames=list(IDs, IDs) )
 	C
 }
+
+
+
 
 
 
