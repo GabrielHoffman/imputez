@@ -40,7 +40,7 @@ impute_z = function(z, Sigma, i, lambda = 0.1){
 
 
 # Instead do reverse diagonal
-@export
+#' @export
 pairwiseCompleteWindow = function(S, mid){
 	# Reduce window until most distance SNPs have LD computed
 	a = 1

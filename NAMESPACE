@@ -2,6 +2,7 @@
 
 export(fillRate)
 export(impute_z)
+export(pairwiseCompleteWindow)
 export(readLDMatrix)
 importFrom(GenomicRanges,GRanges)
 importFrom(IRanges,IRanges)
