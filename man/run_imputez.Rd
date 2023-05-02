@@ -4,12 +4,12 @@
 \alias{run_imputez}
 \title{Impute many z-statistics}
 \usage{
-run_imputez(z, dfld, IDs, maxWindowSize = 200, quiet = FALSE)
+run_imputez(z, LDinfo, IDs, maxWindowSize = 200, quiet = FALSE)
 }
 \arguments{
 \item{z}{vector of observed z-statistics with unobserved storing value \code{NA}}
 
-\item{dfld}{\code{data.table} storing LD information}
+\item{LDinfo}{\code{list} with \code{data.table} storing LD information, and \code{GRanges} with position info}
 
 \item{IDs}{variant names in \code{z} to impute}
 

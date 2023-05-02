@@ -9,7 +9,7 @@ constructLD(dfld, ids)
 \arguments{
 \item{dfld}{\code{data.table} storing LD information}
 
-\item{incl}{indeces to include}
+\item{ids}{variant names to include}
 }
 \value{
 \code{sparseMatrix} storing LD between variants

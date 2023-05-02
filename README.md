@@ -60,7 +60,7 @@ z = df_z_obs$Z
 names(z) = df_z_obs$SNP
 
 # Run z-statistic imputation on one chromosome
-df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[1:1000])
+df_z = run_imputez(z, LDm[['22']], names(z)[1:1000])
 ```
 
 Plot comparing observed and imputed values
@@ -68,7 +68,6 @@ Plot comparing observed and imputed values
 library(ggplot2)
 
 df = data.frame(df_z, z.orig = z[df_z$ID]) 
-
 r = with(df, cor(z.orig, z.stat))
 
 ggplot(df, aes(z.orig, z.stat, color=r2.pred)) +
@@ -98,10 +97,6 @@ z[idx] = NA
 df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[idx])
 ```
 
-ids_impute = LDm[['22']]$dfld[!SNP_A %in% names(z),unique(SNP_A)]
-
-
-df_z = run_imputez(z, LDm[['22']]$dfld, ids_impute)
 
 
 

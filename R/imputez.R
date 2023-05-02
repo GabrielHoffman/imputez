@@ -86,14 +86,14 @@ pairwiseCompleteWindow = function(S, mid){
 #' Construct LD matrix from data.table
 #' 
 #' @param dfld \code{data.table} storing LD information
-#' @param incl indeces to include 
+#' @param ids variant names to include
 #' 
 #' @return \code{sparseMatrix} storing LD between variants
 #' @importFrom Matrix sparseMatrix
 #' @export
 constructLD = function(dfld, ids){
 
-	idx_A = idx_B = SNP_A = NULL
+	idx_A = idx_B = SNP_A = SNP_B = NULL
 
 	inclgd = expand.grid(ids, ids)
 
@@ -116,6 +116,11 @@ constructLD = function(dfld, ids){
 							dimnames=list(IDs, IDs) )
 	C
 }
+
+# head(LDm[['22']]$dfld)
+#  constructLD(LDm[['22']]$dfld, ids)
+
+
 
 # Test if alternative way of subsetting is faster
 # f = function(){
@@ -143,7 +148,7 @@ constructLD = function(dfld, ids){
 #' Impute many z-statistics given observed z-statistics and \code{data.table} of LD.
 #' 
 #' @param z vector of observed z-statistics with unobserved storing value \code{NA}
-#' @param dfld \code{data.table} storing LD information
+#' @param LDinfo \code{list} with \code{data.table} storing LD information, and \code{GRanges} with position info
 #' @param IDs variant names in \code{z} to impute
 #' @param maxWindowSize max window size around target variant to keep
 #' @param quiet default FALSE.  If TRUE, suppress progress bar
@@ -159,7 +164,22 @@ constructLD = function(dfld, ids){
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
 #' @export
-run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
+run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
+
+	R = NULL 
+
+	idx = match(IDs, names(z))
+	if( any(is.na(idx)) ) stop("IDs not found in names(z)")
+
+	# only keep z-statistics that are in reference panel
+	IDs = LDinfo$dfld[,unique(SNP_A)]
+	z_tmp = rep(NA, length(LDinfo$gr))
+	names(z_tmp) = names(LDinfo$gr)
+	idx = match(names(z), names(z_tmp))
+	z_tmp[idx[!is.na(idx)]] = z[!is.na(idx)]
+
+	# use this version internally
+	z = z_tmp
 
 	if( ! quiet ){
 		pb <- progress_bar$new(
@@ -174,12 +194,12 @@ run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
 		i = match(id, names(z))
 		
 		# if variant is not in LD reference
-		if( dfld[.(id, id),is.na(R)]) return(NULL)
+		if( LDinfo$dfld[.(id, id),is.na(R)]) return(NULL)
 
 		# get window including maxWindowSize observed z-scores
 		incl = get_window(z, i, id, maxWindowSize,b)
 		z_local = z[incl]
-		Sigma_local = as.matrix( constructLD(dfld, names(z)[incl]))
+		Sigma_local = as.matrix( constructLD(LDinfo$dfld, names(z)[incl]))
 
 		# get only shared variants
 		keep = intersect( names(z_local), rownames(Sigma_local))
