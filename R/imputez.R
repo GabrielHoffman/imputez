@@ -186,6 +186,7 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 
 	# precompute
 	b = cumsum(!is.na(z_tmp))
+
 	df_z = lapply(IDs, function(id){
 		message(id)
 		i = match(id, names(z_tmp))
@@ -258,7 +259,7 @@ get_window = function(z, i, id, maxWindowSize,
 	b = cumsum(!is.na(z))){
 
 	id1 = which.min(abs(b[seq(1,i)] -(b[id] - maxWindowSize)))
-	j = which.min(abs(b - maxWindowSize)) + i - 1
+	j = min(which.min(abs(b - maxWindowSize)) + i - 1, length(b))
 	id2 = names(b)[j]
 
 	idx = which(names(z) %in% c(names(id1), id2))
