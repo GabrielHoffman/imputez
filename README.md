@@ -1,4 +1,8 @@
 
+<br>
+<br>
+<br>
+
 ## Installation
 ```r
 devtools::install_github("GabrielHoffman/imputez")
