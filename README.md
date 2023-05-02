@@ -1,10 +1,10 @@
 
-# Installation
+## Installation
 ```r
 devtools::install_github("GabrielHoffman/imputez")
 ```
 
-# Create LD files
+## Create LD files
 ```sh
 FILE=/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22
 OUT=/sc/arion/scratch/hoffmg01/chr22
@@ -23,10 +23,8 @@ MAF=0.01
 plink --bfile $FILE --maf $MAF --r gz --ld-window 1000 --ld-window-kb $KB --ld-window-r2 0 --threads 12 --out $OUT
 ```
 
-# Test imputation
-NOTE: z-statistics must be input in order along chromosome
-
-Read in z-statistics and LD information
+## Test imputation
+#### Read in z-statistics and LD information
 ```r
 # devtools::install_github("GabrielHoffman/imputez")
 library(imputez)
@@ -52,7 +50,8 @@ LDm = readLDMatrix( df )
 # saveRDS(LDm, file="/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
 ```
 
-Perform imputation on observed z-statistics.  This is a good check that the pipeline works for a subset of observed variants.
+#### Perform imputation on observed z-statistics.  
+This is a good check that the pipeline works for a subset of observed variants.
 ```r
 # Create vector with z-statistics and variant names
 # the z-statistics must be sorted by chromosome location
@@ -60,10 +59,10 @@ z = df_z_obs$Z
 names(z) = df_z_obs$SNP
 
 # Run z-statistic imputation on one chromosome
-df_z = run_imputez(z, LDm[['22']], names(z)[1:1000])
+df_z = run_imputez(z, LDm[['22']], names(z)[1:100])
 ```
 
-Plot comparing observed and imputed values
+#### Plot comparing observed and imputed values
 ```r
 library(ggplot2)
 
@@ -82,26 +81,22 @@ ggplot(df, aes(z.orig, z.stat, color=r2.pred)) +
 		annotate(geom="text", x=-2, y=2, label=paste0("R=",format(r, digits=4)))
 ```
 
-Additional plots
+#### Additional plots
 ```r
 plot(df_z$width, abs(z[df_z$ID]-df_z$z.stat))
 
 plot(df_z$r2.pred, abs(z[df_z$ID]-df_z$z.stat))
 ```
 
-Impute unobserved z-statistics
+#### Impute unobserved z-statistics
 ```r
-# Impute unobserved z-statistics
-idx = 50:255
-z[idx] = NA
-df_z = run_imputez(z, LDm[['22']], names(z)[idx])
+# get variant IDs LD reference panel but not in z-statistics
+ids_impute = LDm[['22']]$dfld[!SNP_A %in% names(z),unique(SNP_A)]
+
+df_z = run_imputez(z, LDm[['22']], ids_impute)
 ```
 
-
-
-
-
-## Impute directly from correlation matrix
+# Impute directly from correlation matrix
 ```r
 # imputez(z, Sigma, id)
 ```

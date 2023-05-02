@@ -57,30 +57,40 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h1></div>
+  <main id="main" class="col-md-9"><div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"GabrielHoffman/imputez"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level1">
-<h1 id="create-ld-files">Create LD files<a class="anchor" aria-label="anchor" href="#create-ld-files"></a>
-</h1>
+<div class="section level2">
+<h2 id="create-ld-files">Create LD files<a class="anchor" aria-label="anchor" href="#create-ld-files"></a>
+</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">FILE</span><span class="op">=</span>/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">OUT</span><span class="op">=</span>/sc/arion/scratch/hoffmg01/chr22</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># need large window since SNPS are dropped</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> <span class="va">$FILE</span> <span class="at">--maf</span> 0.01 <span class="at">--r</span> gz <span class="at">--ld-window</span> 1000 <span class="at">--ld-window-kb</span> 1000000 <span class="at">--ld-window-r2</span> 0 <span class="at">--threads</span> 12 <span class="at">--out</span> <span class="va">$OUT</span></span></code></pre></div>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Need large window since variants are dropped</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="va">KB</span><span class="op">=</span>1000000</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute LD with adjacent variants</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">NVARIANTS</span><span class="op">=</span>1000</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter by allele frequency since</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># imputation does work for variants that are </span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># rate in the reference panel</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="va">MAF</span><span class="op">=</span>0.01 </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ex">plink</span> <span class="at">--bfile</span> <span class="va">$FILE</span> <span class="at">--maf</span> <span class="va">$MAF</span> <span class="at">--r</span> gz <span class="at">--ld-window</span> 1000 <span class="at">--ld-window-kb</span> <span class="va">$KB</span> <span class="at">--ld-window-r2</span> 0 <span class="at">--threads</span> 12 <span class="at">--out</span> <span class="va">$OUT</span></span></code></pre></div>
 </div>
-<div class="section level1">
-<h1 id="test-imputation">Test imputation<a class="anchor" aria-label="anchor" href="#test-imputation"></a>
-</h1>
-<p>NOTE: z-statistics must be input in order along chromosome</p>
-<p>Read in z-statistics and LD information</p>
+<div class="section level2">
+<h2 id="test-imputation">Test imputation<a class="anchor" aria-label="anchor" href="#test-imputation"></a>
+</h2>
+<div class="section level4">
+<h4 id="read-in-z-statistics-and-ld-information">Read in z-statistics and LD information<a class="anchor" aria-label="anchor" href="#read-in-z-statistics-and-ld-information"></a>
+</h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># devtools::install_github("GabrielHoffman/imputez")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://GabrielHoffman.github.io/imputez" class="external-link">imputez</a></span><span class="op">)</span></span>
-<span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span></span>
 <span></span>
@@ -101,7 +111,11 @@
 <span><span class="co"># LDm = readRDS("/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")</span></span>
 <span><span class="co"># store as RDS to reduce loading time in the future</span></span>
 <span><span class="co"># saveRDS(LDm, file="/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")</span></span></code></pre></div>
-<p>Perform imputation on observed z-statistics</p>
+</div>
+<div class="section level4">
+<h4 id="perform-imputation-on-observed-z-statistics">Perform imputation on observed z-statistics.<a class="anchor" aria-label="anchor" href="#perform-imputation-on-observed-z-statistics"></a>
+</h4>
+<p>This is a good check that the pipeline works for a subset of observed variants.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create vector with z-statistics and variant names</span></span>
 <span><span class="co"># the z-statistics must be sorted by chromosome location</span></span>
@@ -109,15 +123,15 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">=</span> <span class="va">df_z_obs</span><span class="op">$</span><span class="va">SNP</span></span>
 <span></span>
 <span><span class="co"># Run z-statistic imputation on one chromosome</span></span>
-<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">dfld</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p>Plot results</p>
+<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
+<h4 id="plot-comparing-observed-and-imputed-values">Plot comparing observed and imputed values<a class="anchor" aria-label="anchor" href="#plot-comparing-observed-and-imputed-values"></a>
+</h4>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot comparing observed and imputed values</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">df_z</span>, z.orig <span class="op">=</span> <span class="va">z</span><span class="op">[</span><span class="va">df_z</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span><span class="op">)</span> </span>
-<span></span>
 <span><span class="va">r</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">z.orig</span>, <span class="va">z.stat</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">z.orig</span>, <span class="va">z.stat</span>, color<span class="op">=</span><span class="va">r2.pred</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -130,23 +144,30 @@
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Compare observed and imputed"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_color_gradient</a></span><span class="op">(</span>low<span class="op">=</span><span class="st">"lightblue"</span>, high<span class="op">=</span><span class="st">"black"</span>, limits<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>        <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span>geom<span class="op">=</span><span class="st">"text"</span>, x<span class="op">=</span><span class="op">-</span><span class="fl">2</span>, y<span class="op">=</span><span class="fl">2</span>, label<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"R="</span>,<span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">r</span>, digits<span class="op">=</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Additional plots</p>
+</div>
+<div class="section level4">
+<h4 id="additional-plots">Additional plots<a class="anchor" aria-label="anchor" href="#additional-plots"></a>
+</h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">df_z</span><span class="op">$</span><span class="va">width</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="va">df_z</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span><span class="op">-</span><span class="va">df_z</span><span class="op">$</span><span class="va">z.stat</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">df_z</span><span class="op">$</span><span class="va">r2.pred</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="va">df_z</span><span class="op">$</span><span class="va">ID</span><span class="op">]</span><span class="op">-</span><span class="va">df_z</span><span class="op">$</span><span class="va">z.stat</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Impute unobserved z-statistics</p>
+</div>
+<div class="section level4">
+<h4 id="impute-unobserved-z-statistics">Impute unobserved z-statistics<a class="anchor" aria-label="anchor" href="#impute-unobserved-z-statistics"></a>
+</h4>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Impute unobserved z-statistics</span></span>
-<span><span class="va">idx</span> <span class="op">=</span> <span class="fl">50</span><span class="op">:</span><span class="fl">255</span></span>
-<span><span class="va">z</span><span class="op">[</span><span class="va">idx</span><span class="op">]</span> <span class="op">=</span> <span class="cn">NA</span></span>
-<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">dfld</span>, <span class="va">idx</span><span class="op">)</span></span></code></pre></div>
-<div class="section level2">
-<h2 id="impute-directly-from-correlation-matrix">Impute directly from correlation matrix<a class="anchor" aria-label="anchor" href="#impute-directly-from-correlation-matrix"></a>
-</h2>
+<code class="sourceCode R"><span><span class="co"># get variant IDs LD reference panel but not in z-statistics</span></span>
+<span><span class="va">ids_impute</span> <span class="op">=</span> <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">dfld</span><span class="op">[</span><span class="op">!</span><span class="va">SNP_A</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">SNP_A</span><span class="op">)</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span>, <span class="va">ids_impute</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level1">
+<div class="page-header"><h1 id="impute-directly-from-correlation-matrix">Impute directly from correlation matrix<a class="anchor" aria-label="anchor" href="#impute-directly-from-correlation-matrix"></a>
+</h1></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># imputez(z, Sigma, id)</span></span></code></pre></div>
-</div>
 </div>
 
   </main><aside class="col-md-3"><div class="links">

@@ -168,8 +168,8 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 
 	R = SNP_A = NULL 
 
-	idx = match(IDs, names(z))
-	if( any(is.na(idx)) ) stop("IDs not found in names(z)")
+	# idx = match(IDs, names(z))
+	# if( any(is.na(idx)) ) stop("IDs not found in names(z)")
 
 	# only keep z-statistics that are in reference panel
 	z_tmp = rep(NA, length(LDinfo$gr))
@@ -187,7 +187,6 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 	b = cumsum(!is.na(z_tmp))
 
 	df_z = lapply(IDs, function(id){
-		message(id)
 		i = match(id, names(z_tmp))
 		
 		# if variant is not in LD reference
