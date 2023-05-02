@@ -43,13 +43,16 @@ imputez = function(z, Sigma, i, lambda = 0.1){
 				r2.pred = 1 - as.numeric(sigSq))
 }
 
-
+# Test if dropping negative eigen-values works
 # dcmp = eigen(Sigma, symmetric=TRUE)
 # Sigma.shrink = with(dcmp, tcrossprod(vectors, vectors %*% diag(values)))
 # Sigma.shrink[1:3, 1:3]
 
 # Sigma.shrink = with(dcmp, tcrossprod(vectors, vectors %*% diag(pmax(0, values))))
 # Sigma.shrink[1:3, 1:3]
+
+
+
 
 #' Get complete subset of correlation matrix
 #' 
@@ -94,7 +97,7 @@ constructLD = function(dfld, ids){
 
 	inclgd = expand.grid(ids, ids)
 
-	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = 0]
+	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = NULL]
 
 	# get ordering of LD matrix subset
 	IDs = dfldsub[,unique(SNP_A)]
@@ -111,6 +114,27 @@ constructLD = function(dfld, ids){
 							dimnames=list(IDs, IDs) )
 	C
 }
+
+# Test if alternative way of subsetting is faster
+# f = function(){
+# 	inclgd = expand.grid(ids, ids)
+
+# 	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = NULL]
+# }
+
+# system.time(replicate(10, f()))
+
+
+# g = function(){
+
+# 	dfldsub = dfld[.(ids), nomatch = NULL][match(ids, SNP_B),]
+# 	# dfldsub[,length(unique(SNP_A))]
+# 	# dfldsub[,length(unique(SNP_B))]
+# 	# dfldsub2 = dfldsub[match(SNP_A,ids), nomatch = NULL]
+# }
+
+# system.time(replicate(10, f()))
+
 
 #' Impute many z-statistics 
 #' 
@@ -181,6 +205,8 @@ run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
 
 		data.frame(df, width=window[2] - window[1])
 	})
+
+	while(! pb$finished )  pb$tick()
 
 	if( ! quiet ) pb$terminate()
 
