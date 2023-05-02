@@ -172,7 +172,6 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 	if( any(is.na(idx)) ) stop("IDs not found in names(z)")
 
 	# only keep z-statistics that are in reference panel
-	IDs = LDinfo$dfld[,unique(SNP_A)]
 	z_tmp = rep(NA, length(LDinfo$gr))
 	names(z_tmp) = names(LDinfo$gr)
 	idx = match(names(z), names(z_tmp))
