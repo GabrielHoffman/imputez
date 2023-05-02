@@ -94,7 +94,7 @@ Impute unobserved z-statistics
 # Impute unobserved z-statistics
 idx = 50:255
 z[idx] = NA
-df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[idx])
+df_z = run_imputez(z, LDm[['22']], names(z)[idx])
 ```
 
 

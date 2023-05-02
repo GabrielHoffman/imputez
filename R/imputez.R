@@ -166,7 +166,7 @@ constructLD = function(dfld, ids){
 #' @export
 run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 
-	R = NULL 
+	R = SNP_A = NULL 
 
 	idx = match(IDs, names(z))
 	if( any(is.na(idx)) ) stop("IDs not found in names(z)")
@@ -178,9 +178,6 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 	idx = match(names(z), names(z_tmp))
 	z_tmp[idx[!is.na(idx)]] = z[!is.na(idx)]
 
-	# use this version internally
-	z = z_tmp
-
 	if( ! quiet ){
 		pb <- progress_bar$new(
 			format = "  imputing [:bar] :percent eta: :eta",
@@ -188,18 +185,18 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 	}
 
 	# precompute
-	b = cumsum(!is.na(z))
+	b = cumsum(!is.na(z_tmp))
 	df_z = lapply(IDs, function(id){
 		message(id)
-		i = match(id, names(z))
+		i = match(id, names(z_tmp))
 		
 		# if variant is not in LD reference
 		if( LDinfo$dfld[.(id, id),is.na(R)]) return(NULL)
 
 		# get window including maxWindowSize observed z-scores
-		incl = get_window(z, i, id, maxWindowSize,b)
-		z_local = z[incl]
-		Sigma_local = as.matrix( constructLD(LDinfo$dfld, names(z)[incl]))
+		incl = get_window(z_tmp, i, id, maxWindowSize, b)
+		z_local = z_tmp[incl]
+		Sigma_local = as.matrix( constructLD(LDinfo$dfld, names(z_tmp)[incl]))
 
 		# get only shared variants
 		keep = intersect( names(z_local), rownames(Sigma_local))
