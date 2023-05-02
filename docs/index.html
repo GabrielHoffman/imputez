@@ -123,7 +123,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">=</span> <span class="va">df_z_obs</span><span class="op">$</span><span class="va">SNP</span></span>
 <span></span>
 <span><span class="co"># Run z-statistic imputation on one chromosome</span></span>
-<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">1000</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="plot-comparing-observed-and-imputed-values">Plot comparing observed and imputed values<a class="anchor" aria-label="anchor" href="#plot-comparing-observed-and-imputed-values"></a>
@@ -163,9 +163,9 @@
 <span><span class="va">df_z</span> <span class="op">=</span> <span class="fu"><a href="reference/run_imputez.html">run_imputez</a></span><span class="op">(</span><span class="va">z</span>, <span class="va">LDm</span><span class="op">[[</span><span class="st">'22'</span><span class="op">]</span><span class="op">]</span>, <span class="va">ids_impute</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div class="section level1">
-<div class="page-header"><h1 id="impute-directly-from-correlation-matrix">Impute directly from correlation matrix<a class="anchor" aria-label="anchor" href="#impute-directly-from-correlation-matrix"></a>
-</h1></div>
+<div class="section level2">
+<h2 id="impute-directly-from-correlation-matrix">Impute directly from correlation matrix<a class="anchor" aria-label="anchor" href="#impute-directly-from-correlation-matrix"></a>
+</h2>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># imputez(z, Sigma, id)</span></span></code></pre></div>
 </div>

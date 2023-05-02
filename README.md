@@ -59,7 +59,7 @@ z = df_z_obs$Z
 names(z) = df_z_obs$SNP
 
 # Run z-statistic imputation on one chromosome
-df_z = run_imputez(z, LDm[['22']], names(z)[1:100])
+df_z = run_imputez(z, LDm[['22']], names(z)[1:1000])
 ```
 
 #### Plot comparing observed and imputed values
@@ -96,7 +96,7 @@ ids_impute = LDm[['22']]$dfld[!SNP_A %in% names(z),unique(SNP_A)]
 df_z = run_imputez(z, LDm[['22']], ids_impute)
 ```
 
-# Impute directly from correlation matrix
+## Impute directly from correlation matrix
 ```r
 # imputez(z, Sigma, id)
 ```
