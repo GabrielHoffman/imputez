@@ -18,7 +18,7 @@
 #' @importFrom Matrix Diagonal
 #' @importFrom methods is
 #' @export
-impute_z = function(z, Sigma, i, lambda = 0.1){
+imputez = function(z, Sigma, i, lambda = 0.1){
 	if( is(Sigma, "sparseMatrix") ){
 		Sigma.shrink = (1-lambda) * Sigma + Diagonal(nrow(Sigma), lambda)
 	}else{
@@ -37,13 +37,19 @@ impute_z = function(z, Sigma, i, lambda = 0.1){
 	# compute standard error for each imputed z-score
 	sigSq = Sigma.shrink[i,i] - (crossprod(W,Sigma.shrink[-i, -i]) %*% W)
 	
-	data.frame(ID = names(z)[i], 
-						z.stat = as.numeric(z_i), 
-						sigSq = as.numeric(sigSq),
-						r2.pred = 1 - as.numeric(sigSq))
+	data.frame(	ID = names(z)[i], 
+				z.stat = as.numeric(z_i), 
+				sigSq = as.numeric(sigSq),
+				r2.pred = 1 - as.numeric(sigSq))
 }
 
 
+# dcmp = eigen(Sigma, symmetric=TRUE)
+# Sigma.shrink = with(dcmp, tcrossprod(vectors, vectors %*% diag(values)))
+# Sigma.shrink[1:3, 1:3]
+
+# Sigma.shrink = with(dcmp, tcrossprod(vectors, vectors %*% diag(pmax(0, values))))
+# Sigma.shrink[1:3, 1:3]
 
 #' Get complete subset of correlation matrix
 #' 
@@ -82,17 +88,20 @@ pairwiseCompleteWindow = function(S, mid){
 #' @return \code{sparseMatrix} storing LD between variants
 #' @importFrom Matrix sparseMatrix
 #' @export
-constructLD = function(dfld, incl){
+constructLD = function(dfld, ids){
 
 	idx_A = idx_B = SNP_A = NULL
 
-	inclgd = expand.grid(incl, incl)
+	inclgd = expand.grid(ids, ids)
 
-	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = NULL]
+	dfldsub = dfld[.(inclgd$Var1, inclgd$Var2), mult = "first", nomatch = 0]
 
-	rng = dfldsub[,range(idx_A, idx_B)]
-	N = rng[2] - rng[1] + 1
+	# get ordering of LD matrix subset
 	IDs = dfldsub[,unique(SNP_A)]
+	dfldsub$idx_A = dfldsub[,match(SNP_A, IDs)]
+	dfldsub$idx_B = dfldsub[,match(SNP_B, IDs)]
+
+	N = length(IDs)
 
 	C = sparseMatrix( i = dfldsub$idx_A - min(dfldsub$idx_A) + 1,
 							j = dfldsub$idx_B - min(dfldsub$idx_B) + 1,
@@ -109,7 +118,7 @@ constructLD = function(dfld, incl){
 #' 
 #' @param z vector of observed z-statistics with unobserved storing value \code{NA}
 #' @param dfld \code{data.table} storing LD information
-#' @param idx indeces of \code{z} to impute
+#' @param IDs variant names in \code{z} to impute
 #' @param maxWindowSize max window size around target variant to keep
 #' @param quiet default FALSE.  If TRUE, suppress progress bar
 #' 
@@ -124,21 +133,31 @@ constructLD = function(dfld, incl){
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
 #' @export
-run_imputez = function( z, dfld, idx, maxWindowSize = 200, quiet=FALSE){
+run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
 
 	if( ! quiet ){
 		pb <- progress_bar$new(
 			format = "  imputing [:bar] :percent eta: :eta",
-			total = length(idx), clear = FALSE, width= 60)
+			total = length(IDs), clear = FALSE, width= 60)
 	}
 
-	df_z = lapply(idx, function(i){
-		id = names(z)[i]
+	# precompute
+	b = cumsum(!is.na(z))
+	df_z = lapply(IDs, function(id){
+		i = match(id, names(z))
+		
+		# if variant is not in LD reference
+		if( dfld[.(id, id),is.na(R)]) return(NULL)
 
 		# get window including maxWindowSize observed z-scores
-		incl = get_window(z, i, id, maxWindowSize)
+		incl = get_window(z, i, id, maxWindowSize,b)
 		z_local = z[incl]
-		Sigma_local = as.matrix( constructLD(dfld, incl))
+		Sigma_local = as.matrix( constructLD(dfld, names(z)[incl]))
+
+		# get only shared variants
+		keep = intersect( names(z_local), rownames(Sigma_local))
+		z_local = z_local[keep]
+		Sigma_local = Sigma_local[keep,keep]
 
 		# Reduce window until most distance SNPs have LD computed
 		# This ensures that Sigma is positive definite
@@ -156,10 +175,14 @@ run_imputez = function( z, dfld, idx, maxWindowSize = 200, quiet=FALSE){
 		z_local = z_local[keep]
 
 		k = which(names(z_local) == id)
-		df = impute_z(z_local, Sigma_local, k, lambda=0.1)
+		df = imputez(z_local, Sigma_local, k, lambda=0.1)
+
 		if( ! quiet ) pb$tick()
+
 		data.frame(df, width=window[2] - window[1])
 	})
+
+	if( ! quiet ) pb$terminate()
 
 	do.call(rbind, df_z)
 }
@@ -168,16 +191,43 @@ run_imputez = function( z, dfld, idx, maxWindowSize = 200, quiet=FALSE){
 
 # incl = seq(pmax(1, i-maxWindowSize), 
 # 			pmin(length(z), i + maxWindowSize))
-get_window = function(z, i, id, maxWindowSize){
-	a = cumsum(!is.na(z[seq(1, i)]))
-	b = cumsum(!is.na(z[seq(i,length(z))]))
+# get_window = function(z, i, id, maxWindowSize){
+# 	a = cumsum(!is.na(z[seq(1, i)]))
+# 	b = cumsum(!is.na(z[seq(i,length(z))]))
 
-	id1 = which.min(abs(a -(a[id] - maxWindowSize)))
-	id2 = which.min(abs(b - maxWindowSize))
+# 	id1 = which.min(abs(a -(a[id] - maxWindowSize)))
+# 	id2 = which.min(abs(b - maxWindowSize))
 
-	idx = which(names(z) %in% c(names(id1), names(id2)))
+# 	idx = which(names(z) %in% c(names(id1), names(id2)))
+# 	seq(idx[1], idx[2])
+# }
+
+# b = cumsum(!is.na(z[seq(i,length(z))]))
+# which.min(abs(b - maxWindowSize))
+
+get_window = function(z, i, id, maxWindowSize, 
+	b = cumsum(!is.na(z))){
+
+	id1 = which.min(abs(b[seq(1,i)] -(b[id] - maxWindowSize)))
+	j = which.min(abs(b - maxWindowSize)) + i - 1
+	id2 = names(b)[j]
+
+	idx = which(names(z) %in% c(names(id1), id2))
 	seq(idx[1], idx[2])
 }
+
+#  range(get_window(z, i, id, maxWindowSize=50))
+#  range(get_window2(z, i, id, maxWindowSize=50))
+
+
+
+# system.time(replicate(100, get_window(z, i, id, maxWindowSize)))
+
+
+# b = cumsum(!is.na(z))
+# system.time(replicate(100, get_window2(z, i, id, maxWindowSize)))
+
+# system.time(replicate(100, get_window2(z, i, id, maxWindowSize, b)))
 
 
 

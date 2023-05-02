@@ -4,7 +4,7 @@
 \alias{constructLD}
 \title{Construct LD matrix from data.table}
 \usage{
-constructLD(dfld, incl)
+constructLD(dfld, ids)
 }
 \arguments{
 \item{dfld}{\code{data.table} storing LD information}

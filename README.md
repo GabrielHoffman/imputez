@@ -4,6 +4,14 @@
 devtools::install_github("GabrielHoffman/imputez")
 ```
 
+# Create LD files
+```sh
+FILE=/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22
+OUT=/sc/arion/scratch/hoffmg01/chr22
+
+# need large window since SNPS are dropped
+plink --bfile $FILE --maf 0.01 --r gz --ld-window 1000 --ld-window-kb 1000000 --ld-window-r2 0 --threads 12 --out $OUT
+```
 
 # Test imputation
 NOTE: z-statistics must be input in order along chromosome
@@ -31,7 +39,6 @@ df$LD = "/sc/arion/scratch/hoffmg01/chr22.ld.gz"
 LDm = readLDMatrix( df )
 
 # LDm = readRDS("/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
-
 # store as RDS to reduce loading time in the future
 # saveRDS(LDm, file="/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
 ```
@@ -44,7 +51,7 @@ z = df_z_obs$Z
 names(z) = df_z_obs$SNP
 
 # Run z-statistic imputation on one chromosome
-df_z = run_imputez(z, LDm[['22']]$dfld, 1:1000)
+df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[1:1000])
 ```
 
 Plot results
@@ -84,3 +91,7 @@ z[idx] = NA
 df_z = run_imputez(z, LDm[['22']]$dfld, idx)
 ```
 
+## Impute directly from correlation matrix
+```r
+# imputez(z, Sigma, id)
+```

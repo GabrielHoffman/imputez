@@ -56,9 +56,9 @@ readLDMatrix = function( df_files){
 		dfld = rbind(dfld, data.table(df_self))
 
 		# get index for each marker
-		dfld$idx_A = match(dfld$SNP_A, df_position$name)
-		dfld$idx_B = match(dfld$SNP_B, df_position$name)
-		setkey(dfld, 'idx_A', 'idx_B')
+		# dfld$idx_A = match(dfld$SNP_A, df_position$name)
+		# dfld$idx_B = match(dfld$SNP_B, df_position$name)
+		setkey(dfld, 'SNP_A', 'SNP_B')
 
 		# N = nrow(df_position)
 

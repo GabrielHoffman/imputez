@@ -4,14 +4,14 @@
 \alias{run_imputez}
 \title{Impute many z-statistics}
 \usage{
-run_imputez(z, dfld, idx, maxWindowSize = 200, quiet = FALSE)
+run_imputez(z, dfld, IDs, maxWindowSize = 200, quiet = FALSE)
 }
 \arguments{
 \item{z}{vector of observed z-statistics with unobserved storing value \code{NA}}
 
 \item{dfld}{\code{data.table} storing LD information}
 
-\item{idx}{indeces of \code{z} to impute}
+\item{IDs}{variant names in \code{z} to impute}
 
 \item{maxWindowSize}{max window size around target variant to keep}
 
