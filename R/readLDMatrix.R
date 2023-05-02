@@ -31,14 +31,6 @@ readLDMatrix = function( df_files){
 		colnames(df_position) = c("chrom", "name", "gmap", "position", "allele1", "allele2")
 
 		# read LD
-		# this does R-squared
-		# if( r2cutoff == 0){
-		# 	cmd = paste0("zcat ", df_files$LD[i], " | awk '{print $3, $6, $7}'" )
-		# }else{
-		# 	cmd = paste0("zcat ", df_files$LD[i], " | awk '{if($7*$7 > ", r2cutoff, ") print $3, $6, $7}'")
-		# }
-		# dfld = fread( cmd=cmd, sep=' ')
-
 		dfld = fread(df_files$LD[i], select=c('SNP_A', 'SNP_B', 'R'))
 		dfld = dfld[!is.nan(dfld$R),]
 

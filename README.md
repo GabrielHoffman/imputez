@@ -9,8 +9,18 @@ devtools::install_github("GabrielHoffman/imputez")
 FILE=/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22
 OUT=/sc/arion/scratch/hoffmg01/chr22
 
-# need large window since SNPS are dropped
-plink --bfile $FILE --maf 0.01 --r gz --ld-window 1000 --ld-window-kb 1000000 --ld-window-r2 0 --threads 12 --out $OUT
+# Need large window since variants are dropped
+KB=1000000
+
+# Compute LD with adjacent variants
+NVARIANTS=1000
+
+# Filter by allele frequency since
+# imputation does work for variants that are 
+# rate in the reference panel
+MAF=0.01 
+
+plink --bfile $FILE --maf $MAF --r gz --ld-window 1000 --ld-window-kb $KB --ld-window-r2 0 --threads 12 --out $OUT
 ```
 
 # Test imputation
@@ -20,7 +30,6 @@ Read in z-statistics and LD information
 ```r
 # devtools::install_github("GabrielHoffman/imputez")
 library(imputez)
-
 library(data.table)
 library(Matrix)
 
@@ -43,7 +52,7 @@ LDm = readLDMatrix( df )
 # saveRDS(LDm, file="/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
 ```
 
-Perform imputation on observed z-statistics
+Perform imputation on observed z-statistics.  This is a good check that the pipeline works for a subset of observed variants.
 ```r
 # Create vector with z-statistics and variant names
 # the z-statistics must be sorted by chromosome location
@@ -54,11 +63,9 @@ names(z) = df_z_obs$SNP
 df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[1:1000])
 ```
 
-Plot results
+Plot comparing observed and imputed values
 ```r
-# Plot comparing observed and imputed values
 library(ggplot2)
-library(tidyverse)
 
 df = data.frame(df_z, z.orig = z[df_z$ID]) 
 
@@ -88,8 +95,16 @@ Impute unobserved z-statistics
 # Impute unobserved z-statistics
 idx = 50:255
 z[idx] = NA
-df_z = run_imputez(z, LDm[['22']]$dfld, idx)
+df_z = run_imputez(z, LDm[['22']]$dfld, names(z)[idx])
 ```
+
+ids_impute = LDm[['22']]$dfld[!SNP_A %in% names(z),unique(SNP_A)]
+
+
+df_z = run_imputez(z, LDm[['22']]$dfld, ids_impute)
+
+
+
 
 ## Impute directly from correlation matrix
 ```r

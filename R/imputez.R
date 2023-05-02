@@ -101,8 +101,10 @@ constructLD = function(dfld, ids){
 
 	# get ordering of LD matrix subset
 	IDs = dfldsub[,unique(SNP_A)]
-	dfldsub$idx_A = dfldsub[,match(SNP_A, IDs)]
-	dfldsub$idx_B = dfldsub[,match(SNP_B, IDs)]
+	df = dfldsub[,data.frame(idx1 = match(SNP_A, IDs), 
+					idx2 = match(SNP_B, IDs))]
+	dfldsub$idx_A = apply(df, 1, max)
+	dfldsub$idx_B = apply(df, 1, min)
 
 	N = length(IDs)
 
@@ -168,6 +170,7 @@ run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
 	# precompute
 	b = cumsum(!is.na(z))
 	df_z = lapply(IDs, function(id){
+		message(id)
 		i = match(id, names(z))
 		
 		# if variant is not in LD reference
@@ -187,6 +190,9 @@ run_imputez = function( z, dfld, IDs, maxWindowSize = 200, quiet=FALSE){
 		# This ensures that Sigma is positive definite
 		mid = which(names(z_local) == id)
 		window = pairwiseCompleteWindow( Sigma_local, mid)
+
+		# If no variants are found
+		if( window[2] - window[1] < 2) return(NULL)
 
 		incl2 = seq(window[1], window[2])
 		Sigma_local = Sigma_local[incl2, incl2]
