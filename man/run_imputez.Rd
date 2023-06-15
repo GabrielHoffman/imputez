@@ -18,7 +18,14 @@ run_imputez(z, LDinfo, IDs, maxWindowSize = 200, quiet = FALSE)
 \item{quiet}{default FALSE.  If TRUE, suppress progress bar}
 }
 \value{
-\code{data.frame} storing imputed results
+\code{data.frame} storing imputed results:
+\describe{
+  \item{ID}{variant identifier}
+  \item{z.stat}{imputed z-statistic}
+  \item{sigSq}{variance of imputed z-statistic}
+  \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+  \item{width}{number of SNPs in LD panel used in imputation}
+}
 }
 \description{
 Impute many z-statistics given observed z-statistics and \code{data.table} of LD.
@@ -30,4 +37,7 @@ Implements method by Pasaniuc, et al. (2014).
 {
   \insertRef{pasaniuc2014fast}{imputez}
 }
+}
+\seealso{
+\code{imputez()}
 }

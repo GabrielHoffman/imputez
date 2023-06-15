@@ -10,7 +10,13 @@
 #' 
 #' @details Implements method by Pasaniuc, et al. (2014).
 #'
-#' @return \code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, variance \code{sigSq} of the impute z-score, and metric of accuracy \code{r2.pred}.
+#' @return \code{data.frame} storing:
+#' \describe{
+#'   \item{ID}{variant identifier}
+#'   \item{z.stat}{imputed z-statistic}
+#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+#' }
 #' 
 #' @references{
 #'   \insertRef{pasaniuc2014fast}{imputez}
@@ -159,8 +165,16 @@ constructLD = function(dfld, ids){
 #'   \insertRef{pasaniuc2014fast}{imputez}
 #' }
 #' 
-#' @return \code{data.frame} storing imputed results
-#' 
+#' @return \code{data.frame} storing imputed results:
+#' \describe{
+#'   \item{ID}{variant identifier}
+#'   \item{z.stat}{imputed z-statistic}
+#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+#'   \item{width}{number of SNPs in LD panel used in imputation}
+#' }
+#'
+#' @seealso \code{imputez()}
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
 #' @export

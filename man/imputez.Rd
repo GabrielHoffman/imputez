@@ -16,7 +16,13 @@ imputez(z, Sigma, i, lambda = 0.1)
 \item{lambda}{value used to shrink correlation matrix}
 }
 \value{
-\code{data.frame} with variant \code{ID}, imputed \code{z.stat} for test \code{i}, variance \code{sigSq} of the impute z-score, and metric of accuracy \code{r2.pred}.
+\code{data.frame} storing:
+\describe{
+  \item{ID}{variant identifier}
+  \item{z.stat}{imputed z-statistic}
+  \item{sigSq}{variance of imputed z-statistic}
+  \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+}
 }
 \description{
 Impute z-score from a missing test based on z-scores for other tests, and the correlation matrix between z-scores

@@ -73,8 +73,20 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p><code>data.frame</code> with variant <code>ID</code>, imputed <code>z.stat</code> for test <code>i</code>, variance <code>sigSq</code> of the impute z-score, and metric of accuracy <code>r2.pred</code>.</p>
-    </div>
+<p><code>data.frame</code> storing:</p><dl><dt>ID</dt>
+<dd><p>variant identifier</p></dd>
+
+  <dt>z.stat</dt>
+<dd><p>imputed z-statistic</p></dd>
+
+  <dt>sigSq</dt>
+<dd><p>variance of imputed z-statistic</p></dd>
+
+  <dt>r2.pred</dt>
+<dd><p>metric of accuracy of the imputed z-statistic based on its variance</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Implements method by Pasaniuc, et al. (2014).</p>

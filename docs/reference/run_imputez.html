@@ -77,8 +77,23 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p><code>data.frame</code> storing imputed results</p>
-    </div>
+<p><code>data.frame</code> storing imputed results:</p><dl><dt>ID</dt>
+<dd><p>variant identifier</p></dd>
+
+  <dt>z.stat</dt>
+<dd><p>imputed z-statistic</p></dd>
+
+  <dt>sigSq</dt>
+<dd><p>variance of imputed z-statistic</p></dd>
+
+  <dt>r2.pred</dt>
+<dd><p>metric of accuracy of the imputed z-statistic based on its variance</p></dd>
+
+  <dt>width</dt>
+<dd><p>number of SNPs in LD panel used in imputation</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Implements method by Pasaniuc, et al. (2014).</p>
@@ -88,6 +103,10 @@
     <p>Pasaniuc B, Zaitlen N, Shi H, Bhatia G, Gusev A, Pickrell J, Hirschhorn J, Strachan DP, Patterson N, Price AL (2014).
 “Fast and accurate imputation of summary statistics enhances evidence of functional enrichment.”
 <em>Bioinformatics</em>, <b>30</b>(20), 2906--2914.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="imputez.html">imputez()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
