@@ -1,8 +1,8 @@
 Package: imputez
 Type: Package
 Title: Impute z-statistics for missing tests using observed z-statistics and the correlation matrix between z-statistics
-Version: 1.1
-Date: 2023-05-01
+Version: 1.1.1
+Date: 2023-06-27
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu")
 Maintainer: Gabriel E. Hoffman <gabriel.hoffman@mssm.edu>
 Description: Impute z-statistics for missing tests using observed z-statistics and the correlation matrix between z-statistics.

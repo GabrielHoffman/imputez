@@ -25,11 +25,13 @@
 #' @importFrom methods is
 #' @export
 imputez = function(z, Sigma, i, lambda = 0.1){
+
 	if( is(Sigma, "sparseMatrix") ){
 		Sigma.shrink = (1-lambda) * Sigma + Diagonal(nrow(Sigma), lambda)
 	}else{
 		Sigma.shrink = (1-lambda) * Sigma + diag(lambda, nrow(Sigma))
 	}
+
 	# impute the ith z-score using 
 	# impute z-score using Gaussian conditional distribution
 	# z_i = Sigma.shrink[i,-i] %*% solve(Sigma.shrink[-i,-i], z[-i])
@@ -222,7 +224,14 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 		window = pairwiseCompleteWindow( Sigma_local, mid)
 
 		# If no variants are found
-		if( window[2] - window[1] < 2) return(NULL)
+		if( window[2] - window[1] < 2){
+			ret = data.frame(	ID = id, 
+								z.stat = NA, 
+								sigSq = NA,
+								r2.pred = NA, 
+								width = window[2] - window[1])
+			return(ret)
+		}
 
 		incl2 = seq(window[1], window[2])
 		Sigma_local = Sigma_local[incl2, incl2]
@@ -233,6 +242,16 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 		keep = unique(c(id, names(z_local)[!is.na(z_local)]))
 		Sigma_local = Sigma_local[keep,keep]
 		z_local = z_local[keep]
+
+		# if no SNPs in LD, return empty result
+		if( length(Sigma_local) < 4){
+			ret = data.frame(	ID = id, 
+								z.stat = NA, 
+								sigSq = NA,
+								r2.pred = NA, 
+								width = window[2] - window[1])
+			return(ret)
+		}
 
 		k = which(names(z_local) == id)
 		df = imputez(z_local, Sigma_local, k, lambda=0.1)
@@ -269,6 +288,8 @@ run_imputez = function( z, LDinfo, IDs, maxWindowSize = 200, quiet=FALSE){
 
 get_window = function(z, i, id, maxWindowSize, 
 	b = cumsum(!is.na(z))){
+
+	stopifnot(maxWindowSize > 1)
 
 	id1 = which.min(abs(b[seq(1,i)] -(b[id] - maxWindowSize)))
 	j = min(which.min(abs(b - maxWindowSize)) + i - 1, length(b))
