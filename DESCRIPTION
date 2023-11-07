@@ -17,8 +17,8 @@ Imports:
 	data.table,
     progress,
     Rdpack,
-    decorrelate,
 	GenomicRanges,
+	decorrelate,
 	IRanges,
 	methods
 RoxygenNote: 7.2.3
