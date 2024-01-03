@@ -3,7 +3,6 @@
 export(constructLD)
 export(fillRate)
 export(imputez)
-export(pairwiseCompleteWindow)
 export(readLDMatrix)
 export(run_imputez)
 importFrom(GenomicRanges,GRanges)
