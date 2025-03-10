@@ -31,7 +31,5 @@ Impute z-score from a missing test based on z-scores for other tests, and the co
 Implements method by Pasaniuc, et al. (2014).
 }
 \references{
-{
-  \insertRef{pasaniuc2014fast}{imputez}
-}
+Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 }
