@@ -1,3 +1,7 @@
+# imputez 1.2.0
+  - March 10, 2025
+  - add `decorrelate` dependency
+
 # imputez 1.1.3
   - Jan 2, 2024
   - Fix `get_window()` and `pairwiseCompleteWindow()`

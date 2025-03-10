@@ -101,7 +101,7 @@ pairwiseCompleteWindow <- function(S, mid) {
 #' @importFrom Matrix sparseMatrix
 #' @export
 constructLD <- function(dfld, ids) {
-  idx_A <- idx_B <- SNP_A <- SNP_B <- NULL
+  idx_A <- idx_B <- SNP_A <- SNP_B <- `.` <- NULL
 
   inclgd <- expand.grid(ids, ids)
 
@@ -160,7 +160,7 @@ constructLD <- function(dfld, ids) {
 #' @importFrom Rdpack reprompt
 #' @export
 run_imputez <- function(z, LDinfo, IDs, maxWindowSize = 200, quiet = FALSE) {
-  R <- SNP_A <- NULL
+  R <- SNP_A <- `.` <- NULL
 
   # idx = match(IDs, names(z))
   # if( any(is.na(idx)) ) stop("IDs not found in names(z)")
