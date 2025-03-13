@@ -71,7 +71,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	}
 
 	# set MAF
-	res$maf <- colSums(X[,idx])  / nrow(X)
+	res$maf <- colSums(X[,idx,drop=FALSE])  / nrow(X)
 	res$maf <- pmin(res$maf, 1 - res$maf)
 	res$nVariants = ncol(X) - length(idx)
 
