@@ -51,19 +51,19 @@ run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, method
 
 	  	if (!quiet) pb$tick()
 
-	  	i = match(vID, df$ID)
+	  	i <- match(vID, df$ID)
 
 	  	# read genotypes in window
-		region = with(df[i,], paste0(chrom, ":", position-window, '-', position+window))
-		gds = setRegion(gds, region)
+		region <- with(df[i,], paste0(chrom, ":", position-window, '-', position+window))
+		gds <- setRegion(gds, region)
 		dat <- getNextChunk(gds)
 
 		# Subset to matching variants
-		df_sub = df[df$ID %in% dat$info$ID,]
+		df_sub <- df[df$ID %in% dat$info$ID,]
 
 		# keep variants where GWAS and reference have matching alleles
-		keep = with(df_sub, GWAS_A1 == A1 & GWAS_A2 == A2)
-		df_sub = df_sub[keep,]
+		keep <- with(df_sub, GWAS_A1 == A1 & GWAS_A2 == A2)
+		df_sub <- df_sub[keep,]
 
 		# if less than 2 variants in the window
 		if( length(df_sub$ID) < 2){
@@ -71,22 +71,23 @@ run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, method
 		}
 
 		# extract variant data
-		X = dat$X[,df_sub$ID]
-		idx = match(df$ID[i], df_sub$ID)
-		z = df_sub$z
-		names(z) = df_sub$ID
+		X <- dat$X[,df_sub$ID]
+		idx <- match(df$ID[i], df_sub$ID)
+		z <- df_sub$z
+		names(z) <- df_sub$ID
 
 		# impute z-statistic
 		if( method == "decorrelate" ){
-			res = imputezDecorr(z, X, idx, lambda = lambda)
+			res <- imputezDecorr(z, X, idx, lambda = lambda)
 		}else{
-			lambda = estimate_lambda(X, method)
-			res = imputez(z, cora(X), idx, lambda = lambda)
+			lambda <- estimate_lambda(scale(X), method)
+			browser()
+			res <- imputez(z, cora(X), idx, lambda = lambda)
 		}
 
 		# set MAF
-		res$maf = sum(X[,idx])  / nrow(X)
-		res$maf = pmin(res$maf, 1 - res$maf)
+		res$maf <- sum(X[,idx])  / nrow(X)
+		res$maf <- pmin(res$maf, 1 - res$maf)
 		res$nVariants = ncol(X)
 
 		as_tibble( res )

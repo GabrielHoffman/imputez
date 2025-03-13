@@ -38,7 +38,7 @@ estimate_lambda = function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Sch
 			fit <- shrinkcovmat.equal( t(X) )
 			fit$lambdahat
 		},
-		"Schsfer-Strimmer" = {
+		"Schafer-Strimmer" = {
 			estimate.lambda(X, verbose=FALSE)
 		},
 		"Pseudoinverse" = {
