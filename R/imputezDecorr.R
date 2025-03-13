@@ -18,9 +18,9 @@
 #' \describe{
 #'   \item{ID}{variant identifier}
 #'   \item{z.stat}{imputed z-statistic}
-#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{se}{standard error of imputed z-statistic}
 #'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
-#'   \item{lambda}{correlation shrinkage parameter}
+#'   \item{lambda}{shrinkage parameter}
 #' }
 #'
 #' @references
@@ -30,6 +30,10 @@
 #' @importFrom stats cor
 #' @export
 imputezDecorr <- function(z, X, i, k, lambda = NULL) {
+
+  stopifnot(length(z) == ncol(X))
+  stopifnot(length(i) > 0)
+  stopifnot(k > 0)
 
   X_exclude = X[, -i, drop = FALSE]
 

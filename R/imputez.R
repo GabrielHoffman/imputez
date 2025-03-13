@@ -13,8 +13,9 @@
 #' \describe{
 #'   \item{ID}{variant identifier}
 #'   \item{z.stat}{imputed z-statistic}
-#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{se}{standard error of imputed z-statistic}
 #'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+#'   \item{lambda}{shrinkage parameter}
 #' }
 #'
 #' @references
@@ -24,6 +25,12 @@
 #' @importFrom methods is
 #' @export
 imputez <- function(z, Sigma, i, lambda = 0.1) {
+
+  stopifnot(nrow(Sigma) == ncol(Sigma))
+  stopifnot(length(z) == ncol(Sigma))
+  stopifnot(length(i) > 0)
+  stopifnot(lambda >=0 & lambda <= 1)
+
   if (is(Sigma, "sparseMatrix")) {
     Sigma.shrink <- (1 - lambda) * Sigma + Diagonal(nrow(Sigma), lambda)
   } else if (is(Sigma, "matrix")) {
