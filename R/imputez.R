@@ -54,7 +54,6 @@ imputez <- function(z, Sigma, i, lambda = 0.1) {
     ID = names(z)[i],
     z.stat = as.numeric(z_i),
     se = as.numeric(se),
-    # z.stat.normalized = z_i / se,
     r2.pred = 1 - as.numeric(Sigma_i_t),
     lambda = lambda
   )

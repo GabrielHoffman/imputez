@@ -36,24 +36,75 @@ df$GWAS_A2[idx] = tmp
 df$z[idx] = df$z[idx]
 
 
+# Run analysis with multiple methods
+#-----------------------------------
 
-
-idx = seq(1, nrow(df), by=10)
-res_eclairs = run_analysis(df$ID[idx], df, gds)
-res_fixed = run_analysis(df$ID[idx], df, gds, lambda = 0.01)
-
-
+idx = seq(1, nrow(df), by=1000)
 methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
 
 res = lapply(methods, function(method){
 	message(method)
-	run_analysis(df$ID[idx][1:5], df, gds, method=method) %>%
+	run_analysis(df$ID[idx], df, gds, method=method) %>%
 	mutate(method = method)
 })
 res = bind_rows(res)
 
 
+# Evaluate performance
+#---------------------
 
+rmse = function(x) sqrt(mean(x^2))
+
+# joint imputed and observed t-statistics
+df_res = res %>%
+			left_join(df, by="ID")
+
+# rMSE
+df_res %>%
+	group_by(method) %>%
+	filter(maf > 0.05) %>%
+	summarize(rMSE = rmse(z.stat - z), 
+			rMSE.mod = rmse(z.stat/se - z))
+
+# imputez vs observed z-statistics
+lim = range(c(df_res$z, df_res$z.stat))
+fig = df_res %>%
+		arrange(-r2.pred) %>%
+		ggplot(aes(z, z.stat, color=r2.pred)) +
+			geom_point() +
+			theme_classic() +
+			xlab("Observed z-statistic") +
+			ylab("Imputed z-statistic") +
+			geom_abline(slope=1, intercept=0) +
+			scale_color_gradient(low="grey30", high="red", limits=c(.5,1)) +
+			coord_fixed(ratio = 1) +
+			ylim(lim) + 
+			xlim(lim) +
+			facet_wrap( ~ method)
+ggsave(fig, file="~/www/test.png")
+
+
+# histogram of lambda values
+fig = df_res %>%
+		ggplot(aes(lambda)) +
+			geom_histogram() +
+			theme_classic() +
+			xlab("lambda") +
+			geom_abline(slope=1, intercept=0) +
+			scale_color_gradient(low="grey30", high="red", limits=c(.5,1)) +
+			coord_fixed(ratio = 1) +
+			ylim(lim) + 
+			xlim(lim) +
+			facet_wrap( ~ method)
+ggsave(fig, file="~/www/test.png")
+
+
+
+
+
+
+res_eclairs = run_analysis(df$ID[idx], df, gds)
+res_fixed = run_analysis(df$ID[idx], df, gds, lambda = 0.01)
 
 
 png("~/www/test.png")
