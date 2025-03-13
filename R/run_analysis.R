@@ -35,6 +35,8 @@
 #' @export
 run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer", "Pseudoinverse" ), quiet=FALSE){
 
+	method <- match.arg(method)
+
 	if( ! all(targets %in% df$ID) ){
 		stop("All target variants must be in df")
 	}
