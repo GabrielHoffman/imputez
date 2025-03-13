@@ -43,6 +43,19 @@ res_eclairs = run_analysis(df$ID[idx], df, gds)
 res_fixed = run_analysis(df$ID[idx], df, gds, lambda = 0.01)
 
 
+methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
+
+res = lapply(methods, function(method){
+	message(method)
+	run_analysis(df$ID[idx][1:5], df, gds, method=method) %>%
+	mutate(method = method)
+})
+res = bind_rows(res)
+
+
+
+
+
 png("~/www/test.png")
 par(mfrow=c(2,2))
 hist(res_eclairs$nVariants)
@@ -81,8 +94,8 @@ plot_concordance = function(df_res){
 			scale_color_gradient(low="grey30", high="red", limits=c(.5,1)) +
 			coord_fixed(ratio = 1) +
 			ylim(lim) + xlim(lim) +
-			annotate("text", x=lim[1]*.6, y=lim[2]*.9, label=bquote(R^2==.(rsq)))
-			annotate("text", x=lim[1]*.6, y=lim[2]*.9, label=bquote(rMSE==.(rmse)))
+			annotate("text", x=lim[1]*.6, y=lim[2]*.9, label=bquote(R^2==.(rsq))) +
+			annotate("text", x=lim[1]*.6, y=lim[2]*.7, label=bquote(rMSE==.(rmse)))
 }
 
 
@@ -91,14 +104,16 @@ plot_concordance = function(df_res){
 # joint imputed and observed t-statistics
 df_res1 = res_eclairs %>%
 					left_join(df, by="ID") %>%
-					filter(maf > 0.05) 
+					# mutate(z.stat = z.stat / sqrt(sigSq)) %>%
+					filter(maf > 0.05)
 fig1 = plot_concordance(df_res1)
 
 
 # joint imputed and observed t-statistics
 df_res2 = res_fixed %>%
 					left_join(df, by="ID") %>%
-					filter(maf > 0.05) 
+					# mutate(z.stat = z.stat / sqrt(sigSq)) %>%
+					filter(maf > 0.05)
 fig2 = plot_concordance(df_res2)
 
 fig = cowplot::plot_grid(fig1, fig2)

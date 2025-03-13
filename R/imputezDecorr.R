@@ -41,13 +41,15 @@ imputezDecorr <- function(z, X, i, k, lambda = NULL) {
 
   z_i <- crossprod(W, z[-i])
 
-  sigSq <- 1 - crossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1))
+  Sigma_i_t <- 1 - crossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1, lambda = 0))
+
+  se = sqrt(1 - Sigma_i_t)
 
   data.frame(
     ID = names(z)[i],
     z.stat = as.numeric(z_i),
-    sigSq = as.numeric(sigSq),
-    r2.pred = 1 - as.numeric(sigSq),
+    se = as.numeric(se),
+    r2.pred = 1 - as.numeric(Sigma_i_t),
     lambda = ecl$lambda
   )
 }

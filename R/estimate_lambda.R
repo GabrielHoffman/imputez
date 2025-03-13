@@ -21,7 +21,7 @@
 #' @importFrom ShrinkCovMat shrinkcovmat.equal
 #' @importFrom corpcor estimate.lambda
 #' @export
-estimate_lambda = function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer", "Pseudoinverse" )){
+estimate_lambda = function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )){
 
 	method <- match.arg(method)
 
@@ -40,9 +40,6 @@ estimate_lambda = function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Sch
 		},
 		"Schafer-Strimmer" = {
 			estimate.lambda(X, verbose=FALSE)
-		},
-		"Pseudoinverse" = {
-			lambda = 0
 		})
 }
 
