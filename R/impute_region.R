@@ -101,7 +101,7 @@ get_analysis_windows = function(df, window){
 		# to divide the chrom into to get close 
 		# to the target window
 		width <- df_chrom$end[i] - df_chrom$start[i]
-		nregions <- floor(width / window)
+		nregions <- max(2, floor(width / window))
 
 		# get positions
 		start <- seq(df_chrom$start[i], df_chrom$end[i], length.out=nregions)
