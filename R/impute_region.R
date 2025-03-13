@@ -150,6 +150,7 @@ get_analysis_windows = function(df, window){
 run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE){
 
 	method <- match.arg(method)
+	gds <- setChunkSize(gds, 1e9)
 
 	cols = c("ID", "z", "GWAS_A1", "GWAS_A2", "chrom", "position", "REF_A1", "REF_A2")
 	if( ! any(cols %in% colnames(df)) ){

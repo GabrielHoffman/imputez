@@ -37,16 +37,30 @@ df$z[idx] = df$z[idx]
 #-----------------------------------
 
 file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=1e8, MAF=0.05)
+gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=1e9, MAF=0.05)
 
-res2 = run_imputez(df, gds, 1000000, 250000)	
+res = run_imputez(df, gds, 1000000, 250000)	
+
+# test exclusion
+idx = seq(1, nrow(df), by=10)
+res = run_imputez(df[-idx,], gds, 1000000, 250000)	
+res$method = "decorrelate"
+
+# join imputed and observed t-statistics
+df_res = df[idx,] %>%
+			inner_join( res, by="ID")
+
+
+
+# res = run_imputez(df[-idx,], gds, 1000000, 250000, lambda = .7)	
 
 
 
 
 
-
-
+# TODO
+# create GenomicDataStream::chunkSize() so not dependent on user
+# allow region to be "" in GenomicDataStream
 
 
 
@@ -62,7 +76,7 @@ df_time = list()
 res = lapply(methods, function(method){
 	message(method)
 	tm = system.time({
-		res = run_analysis(df$ID[idx], df, gds, method=method) %>%
+		res = run_imputez(df[-idx,], gds, 1000000, 250000)	%>%
 		mutate(method = method)
 		})
 	df_time[[method]] <<- tm
@@ -76,10 +90,6 @@ res = bind_rows(res)
 
 rmse = function(x) sqrt(mean(x^2))
 
-# joint imputed and observed t-statistics
-df_res = res %>%
-			left_join(df, by="ID") %>%
-			filter(z.stat != 0)
 
 # rMSE
 df_res %>%
