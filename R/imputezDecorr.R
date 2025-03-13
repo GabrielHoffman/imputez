@@ -29,7 +29,7 @@
 #' @importFrom decorrelate eclairs decorrelate
 #' @importFrom stats cor
 #' @export
-imputezDecorr <- function(z, X, i, k=ncol(X), lambda = NULL) {
+imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = NULL) {
 
   stopifnot(length(z) == ncol(X))
   stopifnot(length(i) > 0)
