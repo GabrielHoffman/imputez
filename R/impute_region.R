@@ -51,7 +51,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	keep <- dat$info$inRegion | (!dat$info$inRegion & !is.na(zstats))
 
 	z = zstats[keep]
-	X = dat$X[,keep]
+	X = dat$X[,keep,drop=FALSE]
 
 	# get indeces of unobserved z-statistics
 	idx = which(is.na(z))
