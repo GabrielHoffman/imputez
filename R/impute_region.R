@@ -127,7 +127,6 @@ run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "L
 	# impute in each region
 	res <- lapply(regions, function(region){
 	  	if (!quiet) pb$tick()
-	  	message(region)
 		impute_region(df, gds, region, flankWidth, method)
 	})
 	res <- bind_rows(res)
