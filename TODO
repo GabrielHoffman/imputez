@@ -1,0 +1,4 @@
+ # March 13, 2025
+ Current version analyzes one variant at a time and runes imputez() / imputezDecorr() for each variant
+ This is ok when evaluating estimation performance on known z stats
+ But in real analysis, can reuse processed data on all unknown variants in a window 

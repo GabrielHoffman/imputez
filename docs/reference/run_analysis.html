@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">imputez</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,8 @@
 <span>  <span class="va">gds</span>,</span>
 <span>  window <span class="op">=</span> <span class="fl">1e+05</span>,</span>
 <span>  lambda <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  useEclairs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"decorrelate"</span>, <span class="st">"Ledoit-Wolf"</span>, <span class="st">"OAS"</span>, <span class="st">"Touloumis"</span>, <span class="st">"Schafer-Strimmer"</span>,</span>
+<span>    <span class="st">"Pseudoinverse"</span><span class="op">)</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,8 +75,8 @@
 <dd><p>shrinkage parameter used for LD matrix.  Defaults to <code>lambda = NULL</code> and is estimated from the data</p></dd>
 
 
-<dt id="arg-useeclairs">useEclairs<a class="anchor" aria-label="anchor" href="#arg-useeclairs"></a></dt>
-<dd><p>default <code>TRUE</code> to use faster method.</p></dd>
+<dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
+<dd><p>method used to estimate shrinkage parameter lambda.  default is <code>"decorrelate"</code></p></dd>
 
 
 <dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>

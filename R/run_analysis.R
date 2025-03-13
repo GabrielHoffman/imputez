@@ -7,7 +7,7 @@
 #' @param gds \code{GenomicDataStream} of reference panel
 #' @param window size of window in bp 
 #' @param lambda shrinkage parameter used for LD matrix.  Defaults to \code{lambda = NULL} and is estimated from the data
-#' @param useEclairs default \code{TRUE} to use faster method.
+#' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
 #' @param quiet suppress messages
 #'
 #' @details Implements method by Pasaniuc, et al. (2014).
@@ -29,10 +29,11 @@
 #' @seealso \code{imputez()}
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
+#' @importFrom Rfast cora
 #' @importFrom dplyr bind_rows as_tibble
 #' @importFrom GenomicDataStream setRegion getNextChunk
 #' @export
-run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, useEclairs = TRUE, quiet=FALSE){
+run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer", "Pseudoinverse" ), quiet=FALSE){
 
 	if( ! all(targets %in% df$ID) ){
 		stop("All target variants must be in df")
@@ -46,11 +47,11 @@ run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, useEcl
 
 	res = lapply(targets, function(vID){
 
-	  if (!quiet) pb$tick()
+	  	if (!quiet) pb$tick()
 
-	  i = match(vID, df$ID)
+	  	i = match(vID, df$ID)
 
-	  # read genotypes in window
+	  	# read genotypes in window
 		region = with(df[i,], paste0(chrom, ":", position-window, '-', position+window))
 		gds = setRegion(gds, region)
 		dat <- getNextChunk(gds)
@@ -74,10 +75,11 @@ run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, useEcl
 		names(z) = df_sub$ID
 
 		# impute z-statistic
-		if( useEclairs ){
-			res = imputezDecorr(z, X, idx, lambda=lambda)
+		if( method == "decorrelate" ){
+			res = imputezDecorr(z, X, idx, lambda = lambda)
 		}else{
-			res = imputez(z, cor(X), idx)
+			lambda = estimate_lambda(X, method)
+			res = imputez(z, cora(X), idx, lambda = lambda)
 		}
 
 		# set MAF

@@ -44,13 +44,18 @@ imputez <- function(z, Sigma, i, lambda = 0.1) {
   z_i <- crossprod(W, z[-i])
 
   # compute standard error for each imputed z-score
-  sigSq <- Sigma.shrink[i, i] - (crossprod(W, Sigma.shrink[-i, -i]) %*% W)
+  # Sigma_i_t <- Sigma.shrink[i, i] - Sigma.shrink[i,-i] %*% solve(Sigma.shrink[-i, -i], Sigma.shrink[i,-i])
+  Sigma_i_t <- Sigma[i, i] - (crossprod(W, Sigma[-i, -i]) %*% W)
+
+  # standard error of z-statistic
+  se = sqrt(crossprod(W, Sigma[-i, -i]) %*% W)
 
   data.frame(
     ID = names(z)[i],
     z.stat = as.numeric(z_i),
-    sigSq = as.numeric(sigSq),
-    r2.pred = 1 - as.numeric(sigSq)
+    se = as.numeric(se),
+    # z.stat.normalized = z_i / se,
+    r2.pred = 1 - as.numeric(Sigma_i_t)
   )
 }
 

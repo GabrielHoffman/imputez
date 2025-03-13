@@ -1,8 +1,8 @@
 Package: imputez
 Type: Package
 Title: Impute z-Statistics for Missing Tests using Observed z-Statistics and the Correlation Matrix Between z-Statistics
-Version: 1.2.0
-Date: 2025-03-10
+Version: 1.2.1
+Date: 2025-03-13
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu", comment=c(ORCID="0000-0002-0957-0224"))
 Description: Impute z-statistics for missing tests using observed z-statistics and the correlation matrix between z-statistics.
 License: GPL-2
@@ -14,7 +14,11 @@ Depends:
 Imports:
 	decorrelate,
 	GenomicDataStream,
+	CovTools,
+	ShrinkCovMat,
+	corpcor,
 	dplyr,
+	Rfast,
 	progress,
 	Matrix,
 	Rdpack,

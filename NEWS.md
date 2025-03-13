@@ -1,3 +1,7 @@
+# imputez 1.2.1
+  - March 13, 2025
+  - add `estimate_lambda()` and capability to use multiple shrinkage methods
+
 # imputez 1.2.0
   - March 10, 2025
   - Complete refactor, not backwards compatible

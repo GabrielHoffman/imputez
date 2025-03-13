@@ -10,7 +10,8 @@ run_analysis(
   gds,
   window = 1e+05,
   lambda = NULL,
-  useEclairs = TRUE,
+  method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer",
+    "Pseudoinverse"),
   quiet = FALSE
 )
 }
@@ -25,7 +26,7 @@ run_analysis(
 
 \item{lambda}{shrinkage parameter used for LD matrix.  Defaults to \code{lambda = NULL} and is estimated from the data}
 
-\item{useEclairs}{default \code{TRUE} to use faster method.}
+\item{method}{method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}}
 
 \item{quiet}{suppress messages}
 }
