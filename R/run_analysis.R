@@ -81,7 +81,6 @@ run_analysis = function(targets, df, gds, window = 100000, lambda = NULL, method
 			res <- imputezDecorr(z, X, idx, lambda = lambda)
 		}else{
 			lambda <- estimate_lambda(scale(X), method)
-			browser()
 			res <- imputez(z, cora(X), idx, lambda = lambda)
 		}
 
