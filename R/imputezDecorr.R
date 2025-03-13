@@ -33,7 +33,6 @@ imputezDecorr <- function(z, X, i, k, lambda = NULL) {
 
   stopifnot(length(z) == ncol(X))
   stopifnot(length(i) > 0)
-  stopifnot(k > 0)
 
   X_exclude = X[, -i, drop = FALSE]
 
