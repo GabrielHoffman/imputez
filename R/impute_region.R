@@ -3,7 +3,7 @@
 #'
 #' Impute many z-statistics given observed z-statistics and reference panel
 #'
-#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{A1}, \code{A2}.
+#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{REF_A1}, \code{REF_A2}.
 #' @param gds \code{GenomicDataStream} of reference panel
 #' @param region genomic region to impute
 #' @param flankWidth additional window added to \code{region} 
@@ -34,7 +34,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	df_sub <- df[df$ID %in% dat$info$ID,]
 
 	# keep variants where GWAS and reference have matching alleles
-	keep <- with(df_sub, GWAS_A1 == A1 & GWAS_A2 == A2)
+	keep <- with(df_sub, GWAS_A1 == REF_A1 & GWAS_A2 == REF_A2)
 	df_sub <- df_sub[keep,]
 
 	# mark variants within original region
@@ -50,11 +50,17 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	# 2) outside the target and observed
 	keep <- dat$info$inRegion | (!dat$info$inRegion & !is.na(zstats))
 
-	z = zstats[keep]
-	X = dat$X[,keep,drop=FALSE]
+	z <- zstats[keep]
+	X <- dat$X[,keep,drop=FALSE]
+
+	# Remove entries with duplicated names
+	d <- duplicated(colnames(X))
+	keep <- ! colnames(X) %in% unique(colnames(X)[d])
+	X <- X[,keep,drop=FALSE]
+	z <- z[keep]
 
 	# get indeces of unobserved z-statistics
-	idx = which(is.na(z))
+	idx <- which(is.na(z))
 
 	if( (length(idx) == 0) | (ncol(X) - length(idx) < 3) ){
 		return(NULL)
@@ -73,7 +79,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	# set MAF
 	res$maf <- colSums(X[,idx,drop=FALSE])  / nrow(X)
 	res$maf <- pmin(res$maf, 1 - res$maf)
-	res$nVariants = ncol(X) - length(idx)
+	res$nVariants <- ncol(X) - length(idx)
 
 	as_tibble( res )
 }
@@ -115,6 +121,11 @@ get_analysis_windows = function(df, window){
 run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), quiet=FALSE){
 
 	method <- match.arg(method)
+
+	cols = c("ID", "z", "GWAS_A1", "GWAS_A2", "chrom", "position", "REF_A1", "REF_A2")
+	if( ! any(cols %in% colnames(df)) ){
+		stop("df must have colnames: ID, z, GWAS_A1, GWAS_A1, chrom, position, REF_A1, REF_A2")
+	}
 
 	regions <- get_analysis_windows( df, window)
 

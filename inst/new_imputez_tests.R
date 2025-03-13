@@ -11,9 +11,6 @@ library(imputez)
 library(tidyverse)
 library(GenomicDataStream)
 
-file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=10000)
-
 # read variant positions
 file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22.bim"
 df_map = read_delim(file, col_names=FALSE)
@@ -38,6 +35,24 @@ df$z[idx] = df$z[idx]
 
 # Run analysis with multiple methods
 #-----------------------------------
+
+file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
+gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=10000)
+
+res = run_imputez(df, gds, 100000, 25000)	
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 idx = seq(1, nrow(df), by=10)
 methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
