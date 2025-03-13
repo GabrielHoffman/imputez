@@ -20,8 +20,9 @@ imputez(z, Sigma, i, lambda = 0.1)
 \describe{
   \item{ID}{variant identifier}
   \item{z.stat}{imputed z-statistic}
-  \item{sigSq}{variance of imputed z-statistic}
+  \item{se}{standard error of imputed z-statistic}
   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+  \item{lambda}{shrinkage parameter}
 }
 }
 \description{

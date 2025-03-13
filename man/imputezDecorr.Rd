@@ -4,7 +4,7 @@
 \alias{imputezDecorr}
 \title{Impute z-score based correlations}
 \usage{
-imputezDecorr(z, X, i, k, lambda = NULL)
+imputezDecorr(z, X, i, k = ncol(X), lambda = NULL)
 }
 \arguments{
 \item{z}{vector of observed z-scores}
@@ -22,9 +22,9 @@ imputezDecorr(z, X, i, k, lambda = NULL)
 \describe{
   \item{ID}{variant identifier}
   \item{z.stat}{imputed z-statistic}
-  \item{sigSq}{variance of imputed z-statistic}
+  \item{se}{standard error of imputed z-statistic}
   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
-  \item{lambda}{correlation shrinkage parameter}
+  \item{lambda}{shrinkage parameter}
 }
 }
 \description{
