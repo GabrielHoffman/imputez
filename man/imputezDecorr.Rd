@@ -4,7 +4,7 @@
 \alias{imputezDecorr}
 \title{Impute z-score based correlations}
 \usage{
-imputezDecorr(z, X, i, k = ncol(X), lambda = NULL)
+imputezDecorr(z, X, i, k = min(nrow(X), ncol(X) - length(i)), lambda = NULL)
 }
 \arguments{
 \item{z}{vector of observed z-scores}

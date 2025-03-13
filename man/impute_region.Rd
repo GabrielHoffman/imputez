@@ -14,7 +14,7 @@ impute_region(
 )
 }
 \arguments{
-\item{df}{\code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{A1}, \code{A2}.}
+\item{df}{\code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{REF_A1}, \code{REF_A2}.}
 
 \item{gds}{\code{GenomicDataStream} of reference panel}
 
@@ -24,7 +24,7 @@ impute_region(
 
 \item{method}{method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}}
 
-\item{lambda}{(default: NULL) value used to shrink correlation matrix}
+\item{lambda}{(default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}}
 }
 \description{
 Impute many z-statistics given observed z-statistics and reference panel
