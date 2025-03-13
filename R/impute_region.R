@@ -8,10 +8,10 @@
 #' @param region genomic region to impute
 #' @param flankWidth additional window added to \code{region} 
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
-#' @param lambda (default: NULL) value used to shrink correlation matrix
+#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}
 #' 
 #' @importFrom GenomicDataStream setRegion getNextChunk
-#' @importFrom Rfast standardise
+#' @importFrom Rfast standardise colsums
 #' @export
 impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL){
 
@@ -77,7 +77,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	}
 
 	# set MAF
-	res$maf <- colSums(X[,idx,drop=FALSE])  / nrow(X)
+	res$maf <- colsums(X[,idx,drop=FALSE]) / nrow(X)
 	res$maf <- pmin(res$maf, 1 - res$maf)
 	res$nVariants <- ncol(X) - length(idx)
 
@@ -114,11 +114,40 @@ get_analysis_windows = function(df, window){
 	c(regions)
 }
 
-
+#' Impute many z-statistics
+#'
+#' Impute many z-statistics given observed z-statistics and reference panel
+#'
+#' @param targets variant ID's to impute
+#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{A1}, \code{A2}.
+#' @param gds \code{GenomicDataStream} of reference panel
+#' @param window size of window in bp 
+#' @param lambda shrinkage parameter used for LD matrix.  Defaults to \code{lambda = NULL} and is estimated from the data
+#' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
+#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}
+#' @param quiet suppress messages
+#'
+#' @details Implements method by Pasaniuc, et al. (2014).
+#'
+#' @references
+#' Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
+#'
+#' @return \code{data.frame} storing imputed results:
+#' \describe{
+#'   \item{ID}{variant identifier}
+#'   \item{z.stat}{imputed z-statistic}
+#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+#'   \item{lambda}{shrinkage parameter}
+#'   \item{maf}{minor allele frequency in reference panel}
+#'   \item{nVariants}{number of variants used in imputation}
+#' }
+#'
 #' @seealso \code{imputez()}
 #' @importFrom progress progress_bar
+#' @importFrom Rdpack reprompt
 #' @export
-run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), quiet=FALSE){
+run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE){
 
 	method <- match.arg(method)
 
@@ -138,7 +167,7 @@ run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "L
 	# impute in each region
 	res <- lapply(regions, function(region){
 	  	if (!quiet) pb$tick()
-		impute_region(df, gds, region, flankWidth, method)
+		impute_region(df, gds, region, flankWidth, method, lambda)
 	})
 	res <- bind_rows(res)
 

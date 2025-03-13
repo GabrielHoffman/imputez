@@ -14,7 +14,7 @@ library(GenomicDataStream)
 # read variant positions
 file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22.bim"
 df_map = read_delim(file, col_names=FALSE)
-colnames(df_map) = c("chrom", "ID", "map", "position", "A1" ,"A2")
+colnames(df_map) = c("chrom", "ID", "map", "position", "REF_A1" ,"REF_A2")
 
 # read z-statistics
 file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/exampleForGabriel/GWAS_Zscores_corrected/Bellenguez_AD_chr22.tsv"
@@ -26,7 +26,7 @@ colnames(df_z_obs)[1:2] = c("ID", "z")
 df = inner_join(df_z_obs, df_map, by="ID")
 
 # if alleles are flipped, take negative z-stat
-idx = with(df, GWAS_A1 == A2 & GWAS_A2 == A1)
+idx = with(df, GWAS_A1 == REF_A2 & GWAS_A2 == REF_A1)
 tmp = df$GWAS_A1[idx]
 df$GWAS_A1[idx] = df$GWAS_A2[idx]
 df$GWAS_A2[idx] = tmp
@@ -37,9 +37,9 @@ df$z[idx] = df$z[idx]
 #-----------------------------------
 
 file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=10000)
+gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=1e8, MAF=0.05)
 
-res = run_imputez(df, gds, 100000, 25000)	
+res2 = run_imputez(df, gds, 1000000, 250000)	
 
 
 
