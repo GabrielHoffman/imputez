@@ -45,10 +45,11 @@ imputez <- function(z, Sigma, i, lambda = 0.1) {
 
   # compute standard error for each imputed z-score
   # Sigma_i_t <- Sigma.shrink[i, i] - Sigma.shrink[i,-i] %*% solve(Sigma.shrink[-i, -i], Sigma.shrink[i,-i])
-  Sigma_i_t <- Sigma[i, i] - (crossprod(W, Sigma[-i, -i]) %*% W)
+  # Sigma_i_t <- Sigma[i, i] - (dcrossprod(W, Sigma[-i, -i]) %*% W)
+  Sigma_i_t <- 1 - dcrossprod(W, crossprod(Sigma[-i, -i], W))
 
   # standard error of z-statistic
-  se = sqrt(crossprod(W, Sigma[-i, -i]) %*% W)
+  se = sqrt(1 - Sigma_i_t)
 
   data.frame(
     ID = names(z)[i],

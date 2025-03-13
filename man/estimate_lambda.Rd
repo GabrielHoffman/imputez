@@ -6,7 +6,7 @@
 \usage{
 estimate_lambda(
   X,
-  method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer", "Pseudoinverse")
+  method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer")
 )
 }
 \arguments{
