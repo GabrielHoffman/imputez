@@ -8,11 +8,12 @@
 #' @param region genomic region to impute
 #' @param flankWidth additional window added to \code{region} 
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
+#' @param lambda (default: NULL) value used to shrink correlation matrix
 #' 
 #' @importFrom GenomicDataStream setRegion getNextChunk
 #' @importFrom Rfast standardise
 #' @export
-impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )){
+impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL){
 
 	method <- match.arg(method)
 
