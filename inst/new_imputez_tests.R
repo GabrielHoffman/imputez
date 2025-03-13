@@ -39,13 +39,19 @@ df$z[idx] = df$z[idx]
 # Run analysis with multiple methods
 #-----------------------------------
 
-idx = seq(1, nrow(df), by=1000)
+idx = seq(1, nrow(df), by=10)
 methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
+
+df_time = list()
 
 res = lapply(methods, function(method){
 	message(method)
-	run_analysis(df$ID[idx], df, gds, method=method) %>%
-	mutate(method = method)
+	tm = system.time({
+		res = run_analysis(df$ID[idx], df, gds, method=method) %>%
+		mutate(method = method)
+		})
+	df_time[[method]] <<- tm
+	res 
 })
 res = bind_rows(res)
 
@@ -57,18 +63,20 @@ rmse = function(x) sqrt(mean(x^2))
 
 # joint imputed and observed t-statistics
 df_res = res %>%
-			left_join(df, by="ID")
+			left_join(df, by="ID") %>%
+			filter(z.stat != 0)
 
 # rMSE
 df_res %>%
-	group_by(method) %>%
 	filter(maf > 0.05) %>%
+	group_by(method) %>%
 	summarize(rMSE = rmse(z.stat - z), 
 			rMSE.mod = rmse(z.stat/se - z))
 
 # imputez vs observed z-statistics
 lim = range(c(df_res$z, df_res$z.stat))
 fig = df_res %>%
+	filter(maf > 0.05) %>%
 		arrange(-r2.pred) %>%
 		ggplot(aes(z, z.stat, color=r2.pred)) +
 			geom_point() +
@@ -76,7 +84,7 @@ fig = df_res %>%
 			xlab("Observed z-statistic") +
 			ylab("Imputed z-statistic") +
 			geom_abline(slope=1, intercept=0) +
-			scale_color_gradient(low="grey30", high="red", limits=c(.5,1)) +
+			scale_color_gradient(low="grey30", high="red", limits=c(0,1)) +
 			coord_fixed(ratio = 1) +
 			ylim(lim) + 
 			xlim(lim) +
@@ -89,12 +97,8 @@ fig = df_res %>%
 		ggplot(aes(lambda)) +
 			geom_histogram() +
 			theme_classic() +
-			xlab("lambda") +
-			geom_abline(slope=1, intercept=0) +
-			scale_color_gradient(low="grey30", high="red", limits=c(.5,1)) +
-			coord_fixed(ratio = 1) +
-			ylim(lim) + 
-			xlim(lim) +
+			theme(aspect.ratio=1) +
+			xlab(bquote(lambda)) +
 			facet_wrap( ~ method)
 ggsave(fig, file="~/www/test.png")
 
@@ -260,6 +264,47 @@ microbenchmark(imputez.eclairs(z, X, idx, lambda=0.1), imputez(z, cor(X), idx, l
 
 
 
+
+
+
+
+library(decorrelate)
+library(imputez)
+library(mvtnorm)
+
+rmse = function(x) sqrt(mean(x^2))
+
+p = 500
+Sigma = autocorr.mat(p, .4)
+mu = seq(-sqrt(p), sqrt(p), length.out=p)
+mu[] = 0
+z = c(rmvnorm(1, mu, Sigma))
+names(z) = 1:p
+
+i = floor(p/2)
+mu[i]
+imputez(z, Sigma, i, lambda=0.0)
+z[i]
+
+df = lapply(seq(p), function(i){
+	imputez(z, Sigma, i, lambda=0.0)
+	})
+df = do.call(rbind, df)
+
+plot(z, df$z.stat.normalized)
+points(z, df$z.stat, col="green3", pch=20)
+abline(0,1, col="red")
+
+rmse(z - df$z.stat)
+rmse(z - df$z.stat.normalized)
+
+
+
+stat1 = with(df, (z - df$z.stat)^2)
+stat2 = with(df, (z - df$z.stat)^2 / (se^2))
+
+mean(stat1)
+mean(stat2)
 
 
 

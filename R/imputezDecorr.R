@@ -41,7 +41,7 @@ imputezDecorr <- function(z, X, i, k, lambda = NULL) {
 
   z_i <- crossprod(W, z[-i])
 
-  Sigma_i_t <- 1 - crossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1, lambda = 0))
+  Sigma_i_t <- 1 - dcrossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1, lambda = 0))
 
   se = sqrt(1 - Sigma_i_t)
 
@@ -52,5 +52,10 @@ imputezDecorr <- function(z, X, i, k, lambda = NULL) {
     r2.pred = 1 - as.numeric(Sigma_i_t),
     lambda = ecl$lambda
   )
+}
+
+# diag(crossprod(X,Y))
+dcrossprod = function(X, Y){
+  colSums(X * Y)
 }
 
