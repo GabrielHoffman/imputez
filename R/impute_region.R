@@ -56,7 +56,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	# get indeces of unobserved z-statistics
 	idx = which(is.na(z))
 
-	if( (length(idx) == 0) | (ncol(X) - length(idx) < 3)){
+	if( (length(idx) == 0) | (ncol(X) - length(idx) < 3) ){
 		return(NULL)
 	}
 
@@ -127,7 +127,7 @@ run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "L
 	# impute in each region
 	res <- lapply(regions, function(region){
 	  	if (!quiet) pb$tick()
-
+	  	message(region)
 		impute_region(df, gds, region, flankWidth, method)
 	})
 	res <- bind_rows(res)
