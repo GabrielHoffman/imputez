@@ -72,7 +72,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	}else{
 		X_scaled = standardise(X)
 		lambda <- estimate_lambda(X_scaled, method)
-		C = crossprod(X_scaled)
+		C = crossprod(X_scaled) / c(nrow(X)-1)
 		res <- imputez(z, C, idx, lambda = lambda)
 	}
 
@@ -146,6 +146,7 @@ get_analysis_windows = function(df, window){
 #' @seealso \code{imputez()}
 #' @importFrom progress progress_bar
 #' @importFrom Rdpack reprompt
+#' @importFrom GenomicDataStream setChunkSize
 #' @export
 run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE){
 

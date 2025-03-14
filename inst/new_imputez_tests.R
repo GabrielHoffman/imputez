@@ -37,7 +37,7 @@ df$z[idx] = df$z[idx]
 #-----------------------------------
 
 file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", initialize=TRUE, region='22', chunkSize=1e9, MAF=0.05)
+gds = GenomicDataStream(file, field="GT", region='22', MAF=0.05)
 
 res = run_imputez(df, gds, 1000000, 250000)	
 
@@ -64,10 +64,6 @@ df_res = df[idx,] %>%
 
 
 
-
-
-
-
 idx = seq(1, nrow(df), by=10)
 methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
 
@@ -76,13 +72,17 @@ df_time = list()
 res = lapply(methods, function(method){
 	message(method)
 	tm = system.time({
-		res = run_imputez(df[-idx,], gds, 1000000, 250000)	%>%
+		res = run_imputez(df[-idx,], gds, 1000000, 250000, method=method)%>%
 		mutate(method = method)
 		})
 	df_time[[method]] <<- tm
 	res 
 })
 res = bind_rows(res)
+
+df_res = res %>%
+			inner_join( df[idx,], by="ID")
+
 
 
 # Evaluate performance
