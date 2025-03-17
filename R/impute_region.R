@@ -3,7 +3,7 @@
 #'
 #' Impute many z-statistics given observed z-statistics and reference panel
 #'
-#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{REF_A1}, \code{REF_A2}.
+#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{CHROM}, \code{POS} \code{REF_A1}, \code{REF_A2}.
 #' @param gds \code{GenomicDataStream} of reference panel
 #' @param region genomic region to impute
 #' @param flankWidth additional window added to \code{region} 
@@ -100,12 +100,12 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 #' @importFrom dplyr group_by summarize `%>%`
 get_analysis_windows = function(df, window){
 
-	chrom <- position <- NULL 
+	CHROM <- POS <- NULL 
 
 	# get range of positions on each chromosome
 	df_chrom <- df %>%
-		group_by(chrom) %>%
-		summarize(start = min(position), end = max(position))
+		group_by(CHROM) %>%
+		summarize(start = min(POS), end = max(POS))
 
 	# for each chrom
 	regions = sapply(seq(nrow(df_chrom)), function(i){
@@ -121,7 +121,7 @@ get_analysis_windows = function(df, window){
 		start <- floor(start)
 
 		# create coordinate windows
-		paste0(df_chrom$chrom[i], ":", start[-length(start)], "-", start[-1])
+		paste0(df_chrom$CHROM[i], ":", start[-length(start)], "-", start[-1])
 	})	
 
 	c(regions)
@@ -132,7 +132,7 @@ get_analysis_windows = function(df, window){
 #' Impute many z-statistics given observed z-statistics and reference panel
 #'
 #' @param targets variant ID's to impute
-#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{A1}, \code{A2}.
+#' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{CHROM}, \code{POS} \code{A1}, \code{A2}.
 #' @param gds \code{GenomicDataStream} of reference panel
 #' @param window size of window in bp 
 #' @param lambda shrinkage parameter used for LD matrix.  Defaults to \code{lambda = NULL} and is estimated from the data
@@ -166,9 +166,9 @@ run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "L
 	method <- match.arg(method)
 	gds <- setChunkSize(gds, 1e9)
 
-	cols = c("ID", "z", "GWAS_A1", "GWAS_A2", "chrom", "position", "REF_A1", "REF_A2")
+	cols = c("ID", "z", "GWAS_A1", "GWAS_A2", "CHROM", "POS", "REF_A1", "REF_A2")
 	if( ! any(cols %in% colnames(df)) ){
-		stop("df must have colnames: ID, z, GWAS_A1, GWAS_A1, chrom, position, REF_A1, REF_A2")
+		stop("df must have colnames: ID, z, GWAS_A1, GWAS_A1, CHROM, POS, REF_A1, REF_A2")
 	}
 
 	regions <- get_analysis_windows( df, window)
