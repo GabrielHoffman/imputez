@@ -31,8 +31,9 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	dat <- getNextChunk( gds2 )
 
 	# Modify names to include alleles
-	df$ID = with(df, paste(ID, GWAS_A1, GWAS_A2, sep="__"))
-	dat$info$ID = with(dat$info, paste(ID, A1, A2, sep="__"))
+	df$ID <- with(df, paste(ID, GWAS_A1, GWAS_A2, sep="__"))
+	dat$info$ID <- with(dat$info, paste(ID, A1, A2, sep="__"))
+	colnames(dat$X) <- dat$info$ID
 
 	# Subset to matching variants
 	df_sub <- df[df$ID %in% dat$info$ID,]
@@ -76,9 +77,17 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	}else{
 		X_scaled = standardise(X)
 		lambda <- estimate_lambda(X_scaled, method)
-		C = crossprod(X_scaled) / c(nrow(X)-1)
+		C <- crossprod(X_scaled) / c(nrow(X)-1)
 		res <- imputez(z, C, idx, lambda = lambda)
 	}
+
+	# Set alleles
+	df_alleles <- do.call(rbind, strsplit(res$ID, "__"))
+	res$ID <- df_alleles[,1]
+	res$A1 <- df_alleles[,2]
+	res$A2 <- df_alleles[,3]
+	cols <- c("ID", "A1", "A2", "z.stat", "se", "r2.pred", "lambda")
+	res <- res[,cols]
 
 	# set MAF
 	res$maf <- colsums(X[,idx,drop=FALSE]) / nrow(X)
