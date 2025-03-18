@@ -95,9 +95,8 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	res <- res[,cols]
 
 	# set MAF
-	res$maf <- colsums(X[,idx,drop=FALSE]) / nrow(X)
+	res$maf <- colsums(X[,idx,drop=FALSE]) / (2*nrow(X))
 	res$maf <- pmin(res$maf, 1 - res$maf)
-	if( any(res$maf < 0)) browser()
 	res$nVariants <- ncol(X) - length(idx)
 
 	as_tibble( res )
