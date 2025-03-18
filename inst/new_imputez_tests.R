@@ -1,10 +1,39 @@
 
 
 
-ml plink2/b3.43 tabix
-plink --bfile /sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22 -recode vcf  --out /sc/arion/scratch/hoffmg01/test/1kg_chr22
-bgzip 1kg_chr22.vcf
-tabix -p vcf 1kg_chr22.vcf.gz
+
+# 1000 Genomes and C4 Reference Panel
+# Convert multi-allelic variants to new variants
+#-----------------------------------------------
+ml bcftools tabix parallel
+OUT=/sc/arion/projects/roussp01a/gabriel/ref_panels/1kg
+for CHR in $(seq 1 22)
+do
+FILE=/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/VCF/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+bcftools norm -m - $FILE | bcftools view -O b -o $OUT/1kg_chr${CHR}_norm.bcf &
+done
+
+ls $OUT/*.bcf | parallel bcftools index
+
+# C4
+#-----
+wget https://personal.broadinstitute.org/giulio/panels/MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38.vcf.gz
+bcftools norm -m -  MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38.vcf.gz | bgzip > MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz
+tabix -p vcf MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz
+
+library(GenomicDataStream)
+file = "MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz"
+gds = GenomicDataStream(file, field="GT", region='chr6', init=TRUE)
+
+dat = getNextChunk(gds)
+i = which(nchar(dat$info$A2) > 1)
+
+# rename C4 alleles
+dat$info$ID[i] = paste0(dat$info$ID[i], "_", dat$info$A2[i])
+colnames(dat$X)[i] = dat$info$ID[i]
+
+dat$info[i,]
+head(dat$X[,i])
 
 
 library(imputez)
@@ -36,8 +65,15 @@ df$z[idx] = df$z[idx]
 # Run analysis with multiple methods
 #-----------------------------------
 
-file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", region='22', MAF=0.05)
+# Population assignments
+file = "/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/PLINK/chr1.fam"
+df_pop = read.table(file)
+colnames(df_pop) = c("FID", "IID", "PID", "MID", "Sex", "Pop")
+sampleIDs = df_pop$IID[df_pop$Pop == "EUR"]
+
+file = "/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/VCF/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
+# file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
+gds = GenomicDataStream(file, field="GT", region='22', MAF=0.05, init=TRUE, samples=sampleIDs)
 
 res = run_imputez(df, gds, 1000000, 250000)	
 
@@ -51,10 +87,30 @@ df_res = df[idx,] %>%
 			inner_join( res, by="ID")
 
 
+# rs7284165 is 37636755 
+region = "22:36208043-38253564"
+a = impute_region(df[-idx,], gds, region, 250000, "Sch")
+
+b = impute_region(df[-idx,], gds, region, 250000, "dec")
+
+
+a %>%
+	filter(ID == "rs7284165") %>% 
+	data.frame
+
+b %>%
+	filter(ID == "rs7284165") %>% 
+	data.frame
+
+
+
+
+
+
 
 # res = run_imputez(df[-idx,], gds, 1000000, 250000, lambda = .7)	
 
-
+                                          
 
 
 
@@ -65,14 +121,14 @@ df_res = df[idx,] %>%
 
 
 idx = seq(1, nrow(df), by=10)
-methods = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )
+methods = c("decorrelate", "Schafer-Strimmer" ) #"Ledoit-Wolf", "OAS", "Touloumis", 
 
 df_time = list()
 
 res = lapply(methods, function(method){
 	message(method)
 	tm = system.time({
-		res = run_imputez(df[-idx,], gds, 1000000, 250000, method=method)%>%
+		res = run_imputez(df[-idx,], gds, 1000000, 250000, method=method) %>%
 		mutate(method = method)
 		})
 	df_time[[method]] <<- tm
@@ -83,38 +139,129 @@ res = bind_rows(res)
 df_res = res %>%
 			inner_join( df[idx,], by="ID")
 
+df_res %>% 
+	filter(ID == "rs7284165") %>% 
+	data.frame
 
+
+df_res %>%
+	arrange(-abs(z-z.stat)) %>%
+	head %>%
+	data.frame
 
 # Evaluate performance
 #---------------------
 
+colMethods = c("decorrelate" = "red",
+              "GIW-EB (k=50)" = "#9f1214",
+              "lambda = 0" = "#0000cd", 
+              "Ledoit-Wolf" = "#FF7F00",    
+              "OAS"= "#cccc29", 
+              "Touloumis" = "#A65628", 
+              "Schafer-Strimmer" = "#f569b3", 
+              "Pseudoinverse" = "green3",
+              "Baseline" = "grey50",
+              "Oracle" = "black")
+
+
 rmse = function(x) sqrt(mean(x^2))
 
 
+# Time
+fig = do.call(rbind, df_time) %>%
+	as.data.frame %>%
+	rownames_to_column('Method') %>%
+	ggplot(aes(Method, elapsed, fill=Method)) +
+		geom_bar(stat="identity") +
+		theme_classic() +
+		theme(aspect.ratio=1, legend.position="none") +
+		scale_fill_manual(values = colMethods) +
+		scale_y_continuous(limits=c(0, NA), expand=c(0,0)) +
+		ylab("Wall time (seconds)") +
+		coord_flip()
+ggsave(fig, file="~/www/test.png")
+
+
+
+
+
 # rMSE
-df_res %>%
-	filter(maf > 0.05) %>%
+fig = df_res %>%
+	# filter(maf > 0.05) %>%
 	group_by(method) %>%
 	summarize(rMSE = rmse(z.stat - z), 
-			rMSE.mod = rmse(z.stat/se - z))
+			rMSE.mod = rmse(z.stat/se - z)) %>%
+	ggplot(aes(method, rMSE, fill=method)) +
+		geom_bar(stat="identity") +
+		theme_classic() +
+		theme(aspect.ratio=1, legend.position="none") +
+		scale_fill_manual(values = colMethods) +
+		scale_y_continuous(limits=c(0, NA), expand=c(0,0)) +
+		ylab("Root mean squared error")
+ggsave(fig, file="~/www/test.png")
+
+
+
+# rMSE - stratified
+fig = df_res %>%
+	filter(maf > 0.05) %>%
+	group_by(method, nVariants) %>%
+	summarize(rMSE = rmse(z.stat - z), 
+			rMSE.mod = rmse(z.stat/se - z)) %>%
+	ggplot(aes(nVariants, rMSE, color=method)) +
+		geom_point() +
+		theme_classic() +
+		theme(aspect.ratio=1, legend.position="none") +
+		scale_color_manual(values = colMethods) +
+		scale_y_continuous(limits=c(0, NA), expand=c(0,0)) +
+		ylab("Root mean squared error")
+ggsave(fig, file="~/www/test.png")
+
+
+# rMSE - stratified by r2.pred
+fig = df_res %>%
+	# filter(maf > 0.05) %>%
+	ggplot(aes(r2.pred, (z.stat - z)^2, color=method)) +
+		geom_point() +
+		theme_classic() +
+		theme(aspect.ratio=1, legend.position="none") +
+		scale_color_manual(values = colMethods) +
+		scale_y_continuous(limits=c(0, NA), expand=c(0,0)) +
+		ylab("Squared error")
+ggsave(fig, file="~/www/test.png")
+
+
 
 # imputez vs observed z-statistics
 lim = range(c(df_res$z, df_res$z.stat))
 fig = df_res %>%
 	filter(maf > 0.05) %>%
-		arrange(-r2.pred) %>%
-		ggplot(aes(z, z.stat, color=r2.pred)) +
-			geom_point() +
-			theme_classic() +
-			xlab("Observed z-statistic") +
-			ylab("Imputed z-statistic") +
-			geom_abline(slope=1, intercept=0) +
-			scale_color_gradient(low="grey30", high="red", limits=c(0,1)) +
-			coord_fixed(ratio = 1) +
-			ylim(lim) + 
-			xlim(lim) +
-			facet_wrap( ~ method)
+	arrange(-r2.pred) %>%
+	ggplot(aes(z, z.stat, color=r2.pred)) +
+		geom_point() +
+		theme_classic() +
+		xlab("Observed z-statistic") +
+		ylab("Imputed z-statistic") +
+		geom_abline(slope=1, intercept=0) +
+		scale_color_gradient(low="grey30", high="red", limits=c(0,1)) +
+		coord_fixed(ratio = 1) +
+		ylim(lim) + 
+		xlim(lim) +
+		facet_wrap( ~ method)
 ggsave(fig, file="~/www/test.png")
+
+
+fig = df_res %>%
+	filter(maf > 0.05) %>%
+	arrange(-r2.pred) %>%
+	ggplot(aes(z.stat, se, color=r2.pred)) +
+		geom_point() +
+		theme_classic() +
+		theme(aspect.ratio=1) +
+		scale_color_gradient(low="grey30", high="red", limits=c(.8,1)) +
+		facet_wrap( ~ method)
+ggsave(fig, file="~/www/test.png")
+
 
 
 # histogram of lambda values
@@ -124,7 +271,21 @@ fig = df_res %>%
 			theme_classic() +
 			theme(aspect.ratio=1) +
 			xlab(bquote(lambda)) +
-			facet_wrap( ~ method)
+			facet_wrap( ~ method) +
+			xlim(0, 1)
+ggsave(fig, file="~/www/test.png")
+
+
+
+# histogram of r2.pred values
+fig = df_res %>%
+		ggplot(aes(r2.pred)) +
+			geom_histogram() +
+			theme_classic() +
+			theme(aspect.ratio=1) +
+			xlab(bquote(r2.pred)) +
+			facet_wrap( ~ method) +
+			xlim(NA, 1)
 ggsave(fig, file="~/www/test.png")
 
 

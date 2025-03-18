@@ -30,6 +30,11 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	gds2 <- setRegion(gds, region_expanded)
 	dat <- getNextChunk( gds2 )
 
+	# if no variants found, return null
+	if( length(dat) == 0){
+		return NULL
+	}
+
 	# Modify names to include alleles
 	df$ID <- with(df, paste(ID, GWAS_A1, GWAS_A2, sep="__"))
 	dat$info$ID <- with(dat$info, paste(ID, A1, A2, sep="__"))
