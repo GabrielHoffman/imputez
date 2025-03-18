@@ -32,7 +32,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 
 	# if no variants found, return null
 	if( length(dat) == 0){
-		return NULL
+		return(NULL)
 	}
 
 	# Modify names to include alleles
