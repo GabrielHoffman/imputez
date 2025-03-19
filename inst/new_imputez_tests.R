@@ -15,11 +15,28 @@ done
 
 ls $OUT/*.bcf | parallel bcftools index
 
+# Write MAP file of variant locations
+cd /sc/arion/projects/roussp01a/gabriel/ref_panels/1kg/
+for CHR in $(seq 1 22)
+do
+	echo -e "CHROM\tPOS\tID\tA1\tA2" > 1kg_chr${CHR}_norm.map
+	bcftools view -s HG00096 1kg_chr${CHR}_norm.bcf | grep -v "#" | cut -f1-5 >> 1kg_chr${CHR}_norm.map
+done
+
+
+
+
 # C4
 #-----
 wget https://personal.broadinstitute.org/giulio/panels/MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38.vcf.gz
 bcftools norm -m -  MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38.vcf.gz | bgzip > MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz
 tabix -p vcf MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz
+
+FILE=MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz
+echo -e "CHROM\tPOS\tID\tA1\tA2" > $(basename $FILE .vcf.gz).map
+bcftools view $FILE | grep -v "#" | cut -f1-5 >> $(basename $FILE .vcf.gz).map
+
+
 
 library(GenomicDataStream)
 file = "MHC_haplotypes_CEU_HapMap3_ref_panel.GRCh38_norm.vcf.gz"
@@ -36,23 +53,38 @@ dat$info[i,]
 head(dat$X[,i])
 
 
+FILE=/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/VCF/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+bcftools view -r chr22:37636754-37636756 $FILE
+
+
 library(imputez)
 library(tidyverse)
 library(GenomicDataStream)
 
 # read variant positions
-file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22.bim"
-df_map = read_delim(file, col_names=FALSE)
-colnames(df_map) = c("chrom", "ID", "map", "position", "REF_A1" ,"REF_A2")
+# file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22.bim"
+file = "/sc/arion/projects/roussp01a/gabriel/ref_panels/1kg/1kg_chr22_norm.map"
+df_map = read_delim(file)
+colnames(df_map)[4:5] = c("REF_A1", "REF_A2")
 
 # read z-statistics
-file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/exampleForGabriel/GWAS_Zscores_corrected/Bellenguez_AD_chr22.tsv"
-df_z_obs = read_tsv(file) %>%
-			select(-LD_A1, -LD_A2)
-colnames(df_z_obs)[1:2] = c("ID", "z")
+# file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/exampleForGabriel/GWAS_Zscores_corrected/Bellenguez_AD_chr22.tsv"
+# df_z_obs = read_tsv(file) %>%
+# 			select(-LD_A1, -LD_A2)
+# colnames(df_z_obs)[1:2] = c("ID", "z")
+
+# GRCh37
+file = "/sc/arion/projects/roussp01a/gabriel/ref_panels/data/PGC3_SCZ_wave3.european.autosome.public.v3.vcf.tsv.gz"
+df_z_obs = read_tsv(file, comment="##") %>%
+		arrange(CHROM, POS) %>%
+		mutate(z = BETA / SE)  %>%
+		rename(GWAS_A1 = A1, GWAS_A2 = A2)
+
 
 # join
-df = inner_join(df_z_obs, df_map, by="ID")
+df = df_z_obs %>%
+	select(-CHROM, -POS) %>% 
+	inner_join(df_map, by="ID")
 
 # if alleles are flipped, take negative z-stat
 idx = with(df, GWAS_A1 == REF_A2 & GWAS_A2 == REF_A1)
@@ -62,18 +94,41 @@ df$GWAS_A2[idx] = tmp
 df$z[idx] = df$z[idx]
 
 
+# file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
+# region = "22:37636754-37636756"
+# gds2 = GenomicDataStream(file, field="GT", init=TRUE, region=region)
+# dat2 = getNextChunk(gds2)
+
+# file = "/sc/arion/projects/roussp01a/gabriel/ref_panels/1kg/1kg_chr22_norm.bcf"
+# gds = GenomicDataStream(file, field="GT", init=TRUE, samples=sampleIDs, region=region)
+# dat = getNextChunk(gds)
+
+
 # Run analysis with multiple methods
 #-----------------------------------
 
-# Population assignments
+# FAM file
 file = "/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/PLINK/chr1.fam"
-df_pop = read.table(file)
-colnames(df_pop) = c("FID", "IID", "PID", "MID", "Sex", "Pop")
-sampleIDs = df_pop$IID[df_pop$Pop == "EUR"]
+df_fam = read.table(file)
+colnames(df_fam) = c("FID", "IID", "PID", "MID", "Sex", "Pop")
 
-file = "/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/VCF/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
-# file = "/sc/arion/scratch/hoffmg01/test/1kg_chr22.vcf.gz"
-gds = GenomicDataStream(file, field="GT", region='22', MAF=0.05, init=TRUE, samples=sampleIDs)
+# Population assignments
+file = "/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/release_2013502/integrated_call_samples.20130502.ALL.ped"
+df_pop = read.table(file, header=TRUE, sep="\t")
+df_pop = df_pop[df_pop$Relationship %in% c("father", "unrel","mother"),]
+df_pop = df_pop[df_pop$Individual.ID %in% df_fam$IID,]
+
+pops = c('GBR','IBS', 'TSI','CEU')#, "FIN")
+sampleIDs = df_pop$Individual.ID[df_pop$Population %in% pops]
+length(sampleIDs)
+
+
+
+# sampleIDs = df_pop2$IID[df_pop2$Pop == "EUR"]
+# sampleIDs = read.table("/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V4/inter/230615_V2/plinkStep1/1kg_chr22.fam")$V1
+
+file = "/sc/arion/projects/roussp01a/gabriel/ref_panels/1kg/1kg_chr22_norm.bcf"
+gds = GenomicDataStream(file, field="GT", MAF=0.05, init=TRUE, samples=sampleIDs)
 
 res = run_imputez(df, gds, 1000000, 250000)	
 
@@ -107,21 +162,8 @@ b %>%
 
 
 
-
-# res = run_imputez(df[-idx,], gds, 1000000, 250000, lambda = .7)	
-
-                                          
-
-
-
-# TODO
-# create GenomicDataStream::chunkSize() so not dependent on user
-# allow region to be "" in GenomicDataStream
-
-
-
 idx = seq(1, nrow(df), by=10)
-methods = c("decorrelate", "Schafer-Strimmer" ) #"Ledoit-Wolf", "OAS", "Touloumis", 
+methods = c("decorrelate")#, "Schafer-Strimmer" ) #"Ledoit-Wolf", "OAS", "Touloumis", 
 
 df_time = list()
 
@@ -187,7 +229,7 @@ ggsave(fig, file="~/www/test.png")
 
 # rMSE
 fig = df_res %>%
-	# filter(maf > 0.05) %>%
+	filter(maf > 0.05) %>%
 	group_by(method) %>%
 	summarize(rMSE = rmse(z.stat - z), 
 			rMSE.mod = rmse(z.stat/se - z)) %>%
@@ -248,7 +290,7 @@ fig = df_res %>%
 		ylim(lim) + 
 		xlim(lim) +
 		facet_wrap( ~ method)
-ggsave(fig, file="~/www/test.png")
+ggsave(fig, file="~/www/test.png", height=5, width=5)
 
 
 fig = df_res %>%
