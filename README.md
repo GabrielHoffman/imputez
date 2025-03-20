@@ -1,106 +1,53 @@
 
 <br>
-<br>
-<br>
+
+## Impute z-statistics for missing variants using observed z-statistics and LD matrix
 
 ## Installation
 ```r
 devtools::install_github("GabrielHoffman/imputez")
 ```
+Pasaniuc, et al. (2014).
 
-## Create LD files
-```sh
-FILE=/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22
-OUT=/sc/arion/scratch/hoffmg01/chr22
+Uses implicit covariance and emprical Bayes shrinkage of the eigen-values to accelerate computations. \code{imputez()} is cubic in the number of features, p, but \code{imputezDecorr()}  is the minimum of O(n p^2) and O(n^2p).  For large number of features, this is can be a dramatic speedup.
 
-# Need large window since variants are dropped
-KB=1000000
-
-# Compute LD with adjacent variants
-NVARIANTS=1000
-
-# Filter by allele frequency since
-# imputation does work for variants that are 
-# rate in the reference panel
-MAF=0.01 
-
-plink --bfile $FILE --maf $MAF --r gz --ld-window 1000 --ld-window-kb $KB --ld-window-r2 0 --threads 12 --out $OUT
-```
-
-## Test imputation
-#### Read in z-statistics and LD information
 ```r
-# devtools::install_github("GabrielHoffman/imputez")
 library(imputez)
-library(data.table)
-library(Matrix)
+library(GenomicDataStream)
+library(mvtnorm)
+library(dplyr)
 
-# read z-statistics
-file = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/exampleForGabriel/GWAS_Zscores_corrected/Bellenguez_AD_chr22.tsv"
-df_z_obs = fread(file)
+# VCF file for reference
+file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 
-# Specify locations of bim and ld files for each chromosome
-# This example uses a data frame with 1 row
-# for real analysis use rows for 1:22
-df = data.frame(chrom = 22)
-df$BIM = "/sc/arion/projects/roussp01a/sanan/230322_GWASimp/imputeZPipeline_V2/inter/230424/plinkStep2/1kg_chr22.bim"
-df$LD = "/sc/arion/scratch/hoffmg01/chr22.ld.gz"
+# initialize data stream
+gds = GenomicDataStream(file, "DS", initialize=TRUE)
 
-# read LD info
-LDm = readLDMatrix( df )
+# read genotype data from reference
+dat = getNextChunk(gds)
 
-# LDm = readRDS("/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
-# store as RDS to reduce loading time in the future
-# saveRDS(LDm, file="/sc/arion/scratch/hoffmg01/LDm_chr22.RDS")
+# simulate z-statistics with correlation structure
+# from the LD of the reference panel
+z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+
+# Combine z-statistics with variant ID, position, etc
+df = dat$info %>%
+    mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) %>%
+    rename(REF_A1 = A1, REF_A2 = A2)
+
+# Given observed z-statistics and 
+# GenomicDataStream of reference panel,
+# Impute z-statistics from variants missing z-statistics.
+# Here drop variant 2, and then impute its z-statistic
+res = run_imputez(df[-2,], gds, 10000, 1000)
+
+# Results of imputed z-statistics
+res
+#> # A tibble: 1 × 9
+#>   ID          A1    A2       z.stat        se  r2.pred lambda    maf nVariants
+#>   <chr>       <chr> <chr>     <dbl>     <dbl>    <dbl>  <dbl>  <dbl>     <int>
+#> 1 1:11000:T:C T     C     0.0000165 0.0000291 8.45e-10   1.00 0.0159         9
 ```
 
-#### Perform imputation on observed z-statistics.  
-This is a good check that the pipeline works for a subset of observed variants.
-```r
-# Create vector with z-statistics and variant names
-# the z-statistics must be sorted by chromosome location
-z = df_z_obs$Z
-names(z) = df_z_obs$SNP
-
-# Run z-statistic imputation on one chromosome
-df_z = run_imputez(z, LDm[['22']], names(z)[1:1000])
-```
-
-#### Plot comparing observed and imputed values
-```r
-library(ggplot2)
-
-df = data.frame(df_z, z.orig = z[df_z$ID]) 
-r = with(df, cor(z.orig, z.stat))
-
-ggplot(df, aes(z.orig, z.stat, color=r2.pred)) +
-		geom_point() +
-		theme_classic() +
-		theme(aspect.ratio=1, plot.title = element_text(hjust = 0.5)) +
-		geom_abline(color="red") + 
-		xlab("Observed z") + 
-		ylab("Imputed z") + 
-		ggtitle("Compare observed and imputed") +
-		scale_color_gradient(low="lightblue", high="black", limits=c(0,1)) +
-		annotate(geom="text", x=-2, y=2, label=paste0("R=",format(r, digits=4)))
-```
-
-#### Additional plots
-```r
-plot(df_z$width, abs(z[df_z$ID]-df_z$z.stat))
-
-plot(df_z$r2.pred, abs(z[df_z$ID]-df_z$z.stat))
-```
-
-#### Impute unobserved z-statistics
-```r
-# get variant IDs LD reference panel but not in z-statistics
-ids_impute = LDm[['22']]$dfld[!SNP_A %in% names(z),unique(SNP_A)]
-
-df_z = run_imputez(z, LDm[['22']], ids_impute)
-```
-
-## Impute directly from correlation matrix
-```r
-# imputez(z, Sigma, id)
-```
+echo "sdF" |
+	head

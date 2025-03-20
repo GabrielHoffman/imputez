@@ -31,6 +31,31 @@ Impute z-score from a missing test based on z-scores for other tests, and the co
 \details{
 Implements method by Pasaniuc, et al. (2014).
 }
+\examples{
+library(GenomicDataStream)
+library(mvtnorm)
+library(dplyr)
+
+# VCF file for reference
+file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
+
+# initialize data stream
+gds = GenomicDataStream(file, "DS", initialize=TRUE)
+
+# read genotype data from reference
+dat = getNextChunk(gds)
+
+# simulate z-statistics with correlation structure
+# from the LD of the reference panel
+C = cor(dat$X)
+z = c(rmvnorm(1, rep(0, 10), C))
+names(z) = colnames(dat$X)
+
+# Impute z-statistics for variants 2 and 3 
+# using the other variants and observed z-statistics
+# from the reference panel
+imputez(z, C, 2:3)
+}
 \references{
 Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 }

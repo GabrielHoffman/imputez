@@ -14,7 +14,7 @@ impute_region(
 )
 }
 \arguments{
-\item{df}{\code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{chrom}, \code{position} \code{REF_A1}, \code{REF_A2}.}
+\item{df}{\code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{CHROM}, \code{POS} \code{REF_A1}, \code{REF_A2}.}
 
 \item{gds}{\code{GenomicDataStream} of reference panel}
 
@@ -24,8 +24,51 @@ impute_region(
 
 \item{method}{method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}}
 
-\item{lambda}{(default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}}
+\item{lambda}{(default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}}
+}
+\value{
+\code{tibble} storing imputed results:
+\describe{
+  \item{ID}{variant identifier}
+  \item{z.stat}{imputed z-statistic}
+  \item{sigSq}{variance of imputed z-statistic}
+  \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+  \item{lambda}{shrinkage parameter}
+  \item{maf}{minor allele frequency in reference panel}
+  \item{nVariants}{number of variants used in imputation}
+}
 }
 \description{
 Impute many z-statistics given observed z-statistics and reference panel
+}
+\examples{
+library(GenomicDataStream)
+library(mvtnorm)
+library(dplyr)
+
+# VCF file for reference
+file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
+
+# initialize data stream
+gds = GenomicDataStream(file, "DS", initialize=TRUE)
+
+# read genotype data from reference
+dat = getNextChunk(gds)
+
+# simulate z-statistics with correlation structure
+# from the LD of the reference panel
+z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+
+# Combine z-statistics with variant ID, position, etc
+df = dat$info \%>\%
+		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) \%>\%
+		rename(REF_A1 = A1, REF_A2 = A2)
+
+# Given observed z-statistics and 
+# GenomicDataStream of reference panel,
+# Impute z-statistics from variants missing z-statistics.
+# Here drop variant 2, and then impute its z-statistic
+# Impute variants in the given region
+region = "1:1000-100000"
+impute_region(df[-2,], gds, region, 1000)
 }

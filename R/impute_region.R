@@ -170,7 +170,7 @@ get_analysis_windows = function(df, window){
 
 		# create coordinate windows
 		paste0(df_chrom$CHROM[i], ":", start[-length(start)], "-", start[-1])
-	}, FUN.VALUE="character"))	
+	}, FUN.VALUE="character")
 
 	c(regions)
 }

@@ -1,0 +1,87 @@
+---
+title: "1000 Genomes reference panel"
+subtitle: 'hg19 including INDELS'
+author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
+date: "Run on `r Sys.time()`"
+documentclass: article
+output: 
+    BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{1000 Genomes reference panel}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  cache = TRUE,
+  echo = FALSE,
+  dev = c("png", "pdf"),
+  package.startup.message = FALSE,
+  message = FALSE,
+  error = FALSE,
+  warning = FALSE
+  # collapse = TRUE,
+  # comment = "#>",
+  # fig.path = ""  # Added this line to the standard setup chunk)
+)
+
+options(width = 100)
+```	
+
+Create a reference panel from 1000 Genomes Project. Requires `bcftools`,  `tabix` and `parallel`
+
+```{sh 1kg, eval=FALSE, echo=TRUE}
+# Get 1KG files from 
+# https://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/
+# Location of VCFs 
+DIR=/sc/arion/projects/data-ark/Public_Unrestricted/1000G/phase3/VCF/
+
+# Location to write processed data
+OUT=/sc/arion/projects/roussp01a/gabriel/ref_panels/1kg
+
+# For each chromosome
+# Filter for MAF in European samples
+# use bcftools norm to split multi-allelic sites variants
+# into multiple biallelic records
+for CHR in $(seq 1 22)
+do
+  FILE=$DIR/ALL.chr${CHR}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz
+  bcftools view -i "EUR_AF > 0.001" $FILE | 
+    bcftools norm -m - | 
+    bcftools view -O b -o $OUT/1kg_chr${CHR}_norm_eur.bcf 
+done
+
+# create index for each bcf
+ls $OUT/*_eur.bcf | parallel bcftools index
+
+# Write MAP file of variant locations
+cd /sc/arion/projects/roussp01a/gabriel/ref_panels/1kg/
+for CHR in $(seq 1 22)
+do
+  echo -e "CHROM\tPOS\tID\tA1\tA2" > $OUT/1kg_chr${CHR}_norm_eur.map
+  bcftools view -s HG00096 $OUT/1kg_chr${CHR}_norm_eur.bcf | 
+    grep -v "#" | 
+    cut -f1-5 >> $OUT/1kg_chr${CHR}_norm_eur.map 
+done
+```
+
+
+
+
+
+# Session Info
+<details>
+```{r session, echo=FALSE}
+sessionInfo()
+```
+</details>
+
+
+
+
+
+
