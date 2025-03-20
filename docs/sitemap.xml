@@ -1,19 +1,57 @@
-<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>http://GabrielHoffman.github.io/imputez/404.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/authors.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/index.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/news/index.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/constructLD.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/estimate_lambda.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/fillRate.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/impute_region.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/imputez.eclairs.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/imputez.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/imputezDecorr.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/index.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/pairwiseCompleteWindow.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/readLDMatrix.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/run_analysis.html</loc></url>
-<url><loc>http://GabrielHoffman.github.io/imputez/reference/run_imputez.html</loc></url>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/404.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/articles/ref_panel.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/authors.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/index.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/news/index.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/constructLD.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/estimate_lambda.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/fillRate.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/impute_region.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/imputez.eclairs.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/imputez.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/imputezDecorr.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/pairwiseCompleteWindow.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/readLDMatrix.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/run_analysis.html</loc>
+  </url>
+  <url>
+    <loc>http://GabrielHoffman.github.io/imputez/reference/run_imputez.html</loc>
+  </url>
 </urlset>
-

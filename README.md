@@ -48,6 +48,3 @@ res
 #>   <chr>       <chr> <chr>     <dbl>     <dbl>    <dbl>  <dbl>  <dbl>     <int>
 #> 1 1:11000:T:C T     C     0.0000165 0.0000291 8.45e-10   1.00 0.0159         9
 ```
-
-echo "sdF" |
-	head
