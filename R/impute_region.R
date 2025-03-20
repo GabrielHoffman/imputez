@@ -8,10 +8,53 @@
 #' @param region genomic region to impute
 #' @param flankWidth additional window added to \code{region} 
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
-#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}
+#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}
 #' 
+#' @return \code{tibble} storing imputed results:
+#' \describe{
+#'   \item{ID}{variant identifier}
+#'   \item{z.stat}{imputed z-statistic}
+#'   \item{sigSq}{variance of imputed z-statistic}
+#'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
+#'   \item{lambda}{shrinkage parameter}
+#'   \item{maf}{minor allele frequency in reference panel}
+#'   \item{nVariants}{number of variants used in imputation}
+#' }
+#'
+#' @examples
+#' library(GenomicDataStream)
+#' library(mvtnorm)
+#' library(dplyr)
+#' 
+#' # VCF file for reference
+#' file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
+#' 
+#' # initialize data stream
+#' gds = GenomicDataStream(file, "DS", initialize=TRUE)
+#' 
+#' # read genotype data from reference
+#' dat = getNextChunk(gds)
+#' 
+#' # simulate z-statistics with correlation structure
+#' # from the LD of the reference panel
+#' z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+#' 
+#' # Combine z-statistics with variant ID, position, etc
+#' df = dat$info %>%
+#' 		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) %>%
+#' 		rename(REF_A1 = A1, REF_A2 = A2)
+#' 
+#' # Given observed z-statistics and 
+#' # GenomicDataStream of reference panel,
+#' # Impute z-statistics from variants missing z-statistics.
+#' # Here drop variant 2, and then impute its z-statistic
+#' # Impute variants in the given region
+#' region = "1:1000-100000"
+#' impute_region(df[-2,], gds, region, 1000)
+#
 #' @importFrom GenomicDataStream setRegion getNextChunk
 #' @importFrom Rfast standardise colsums
+#' @importFrom dplyr as_tibble
 #' @export
 impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL){
 
@@ -113,7 +156,7 @@ get_analysis_windows = function(df, window){
 		summarize(start = min(POS), end = max(POS))
 
 	# for each chrom
-	regions = sapply(seq(nrow(df_chrom)), function(i){
+	regions <- vapply(seq(nrow(df_chrom)), function(i){
 
 		# get width in bp and number of regions
 		# to divide the chrom into to get close 
@@ -127,7 +170,7 @@ get_analysis_windows = function(df, window){
 
 		# create coordinate windows
 		paste0(df_chrom$CHROM[i], ":", start[-length(start)], "-", start[-1])
-	})	
+	}, FUN.VALUE="character"))	
 
 	c(regions)
 }
@@ -136,13 +179,12 @@ get_analysis_windows = function(df, window){
 #'
 #' Impute many z-statistics given observed z-statistics and reference panel
 #'
-#' @param targets variant ID's to impute
 #' @param df \code{data.frame} with columns \code{ID}, \code{z}, \code{GWAS_A1}, \code{GWAS_A2}, \code{CHROM}, \code{POS} \code{A1}, \code{A2}.
 #' @param gds \code{GenomicDataStream} of reference panel
 #' @param window size of window in bp 
-#' @param lambda shrinkage parameter used for LD matrix.  Defaults to \code{lambda = NULL} and is estimated from the data
+#' @param flankWidth additional window added to \code{region} 
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
-#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used of method is \code{"decorrelate"}
+#' @param lambda (default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}
 #' @param quiet suppress messages
 #'
 #' @details Implements method by Pasaniuc, et al. (2014).
@@ -150,7 +192,7 @@ get_analysis_windows = function(df, window){
 #' @references
 #' Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 #'
-#' @return \code{data.frame} storing imputed results:
+#' @return \code{tibble} storing imputed results:
 #' \describe{
 #'   \item{ID}{variant identifier}
 #'   \item{z.stat}{imputed z-statistic}
@@ -161,10 +203,42 @@ get_analysis_windows = function(df, window){
 #'   \item{nVariants}{number of variants used in imputation}
 #' }
 #'
+#' @examples
+#' library(GenomicDataStream)
+#' library(mvtnorm)
+#' library(dplyr)
+#' 
+#' # VCF file for reference
+#' file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
+#' 
+#' # initialize data stream
+#' gds = GenomicDataStream(file, "DS", initialize=TRUE)
+#' 
+#' # read genotype data from reference
+#' dat = getNextChunk(gds)
+#' 
+#' # simulate z-statistics with correlation structure
+#' # from the LD of the reference panel
+#' z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+#' 
+#' # Combine z-statistics with variant ID, position, etc
+#' df = dat$info %>%
+#' 		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) %>%
+#' 		rename(REF_A1 = A1, REF_A2 = A2)
+#' 
+#' # Given observed z-statistics and 
+#' # GenomicDataStream of reference panel,
+#' # Impute z-statistics from variants missing z-statistics.
+#' # Here drop variant 2, and then impute its z-statistic
+#' res = run_imputez(df[-2,], gds, 10000, 1000)
+#' 
+#' # Results of imputed z-statistics
+#' res
+#
 #' @seealso \code{imputez()}
 #' @importFrom progress progress_bar
-#' @importFrom Rdpack reprompt
 #' @importFrom GenomicDataStream setChunkSize
+#' @importFrom dplyr bind_rows
 #' @export
 run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE){
 
