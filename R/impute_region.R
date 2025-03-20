@@ -156,7 +156,7 @@ get_analysis_windows = function(df, window){
 		summarize(start = min(POS), end = max(POS))
 
 	# for each chrom
-	regions <- vapply(seq(nrow(df_chrom)), function(i){
+	regions <- lapply(seq(nrow(df_chrom)), function(i){
 
 		# get width in bp and number of regions
 		# to divide the chrom into to get close 
@@ -170,9 +170,9 @@ get_analysis_windows = function(df, window){
 
 		# create coordinate windows
 		paste0(df_chrom$CHROM[i], ":", start[-length(start)], "-", start[-1])
-	}, FUN.VALUE="character")
+	})
 
-	c(regions)
+	unlist(regions)
 }
 
 #' Impute many z-statistics
