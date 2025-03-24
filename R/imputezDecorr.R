@@ -21,6 +21,7 @@
 #'   \item{se}{standard error of imputed z-statistic}
 #'   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
 #'   \item{lambda}{shrinkage parameter}
+#'   \item{averageCorrSq}{average correlation squared in X}
 #' }
 #'
 #' @examples
@@ -52,7 +53,7 @@
 #' @references
 #' Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 #' 
-#' @importFrom decorrelate eclairs decorrelate
+#' @importFrom decorrelate eclairs decorrelate averageCorrSq
 #' @importFrom stats cor
 #' @export
 imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = NULL) {
@@ -64,7 +65,8 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
 
   ecl <- eclairs(X_exclude, k=k, compute = "correlation", lambda = lambda)
 
-  if( is.null(lambda) ){
+  # if lambda is estiamted and k is full rank
+  if( is.null(lambda) & k == min(nrow(X), ncol(X)-length(i)) ){
     # bound lambda 
     r <- min(dim(X))
     ecl$lambda <- max(ecl$lambda, 1/sqrt(r))
@@ -85,7 +87,8 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
     z.stat = as.numeric(z_i),
     se = as.numeric(se),
     r2.pred = 1 - as.numeric(Sigma_i_t),
-    lambda = ecl$lambda
+    lambda = ecl$lambda,
+    averageCorrSq = averageCorrSq(ecl)
   )
 }
 

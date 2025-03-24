@@ -25,6 +25,7 @@ imputezDecorr(z, X, i, k = min(nrow(X), ncol(X) - length(i)), lambda = NULL)
   \item{se}{standard error of imputed z-statistic}
   \item{r2.pred}{metric of accuracy of the imputed z-statistic based on its variance}
   \item{lambda}{shrinkage parameter}
+  \item{averageCorrSq}{average correlation squared in X}
 }
 }
 \description{
