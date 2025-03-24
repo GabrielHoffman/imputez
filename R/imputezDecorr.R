@@ -64,9 +64,11 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
 
   ecl <- eclairs(X_exclude, k=k, compute = "correlation", lambda = lambda)
 
-  # bound lambda 
-  r <- min(dim(X))
-  ecl$lambda <- max(ecl$lambda, 1/sqrt(r))
+  if( is.null(lambda) ){
+    # bound lambda 
+    r <- min(dim(X))
+    ecl$lambda <- max(ecl$lambda, 1/sqrt(r))
+  }
 
   g <- (1 - ecl$lambda) * cor(X_exclude, X[, i,drop=FALSE])
 
