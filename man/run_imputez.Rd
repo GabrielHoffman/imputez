@@ -11,7 +11,8 @@ run_imputez(
   flankWidth,
   method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"),
   lambda = NULL,
-  quiet = FALSE
+  quiet = FALSE,
+  ...
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ run_imputez(
 \item{lambda}{(default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}}
 
 \item{quiet}{suppress messages}
+
+\item{...}{additional arguments passed to \code{impute_region()}}
 }
 \value{
 \code{tibble} storing imputed results:

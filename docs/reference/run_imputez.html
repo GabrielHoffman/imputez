@@ -64,7 +64,8 @@
 <span>  <span class="va">flankWidth</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"decorrelate"</span>, <span class="st">"Ledoit-Wolf"</span>, <span class="st">"OAS"</span>, <span class="st">"Touloumis"</span>, <span class="st">"Schafer-Strimmer"</span><span class="op">)</span>,</span>
 <span>  lambda <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -96,6 +97,10 @@
 
 <dt>quiet</dt>
 <dd><p>suppress messages</p></dd>
+
+
+<dt>...</dt>
+<dd><p>additional arguments passed to <code><a href="impute_region.html">impute_region()</a></code></p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -173,7 +178,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ID          A1    A2       z.stat        se  r2.pred lambda    maf nVariants</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 1:11000:T:C T     C     0.000<span style="text-decoration: underline;">058</span>0 0.000<span style="text-decoration: underline;">029</span>1 8.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>   1.00 0.015<span style="text-decoration: underline;">9</span>         9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 1:11000:T:C T     C     0.000<span style="text-decoration: underline;">013</span>1 0.000<span style="text-decoration: underline;">029</span>1 8.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>   1.00 0.015<span style="text-decoration: underline;">9</span>         9</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -6,6 +6,7 @@
 #' @param Sigma matrix of correlation between z-scores
 #' @param i index of z-scores to impute
 #' @param lambda value used to shrink correlation matrix
+#' @param useginv if \code{TRUE} use pseudoinverse
 #'
 #' @details Implements method by Pasaniuc, et al. (2014).
 #'
@@ -47,9 +48,10 @@
 #' Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 #'
 #' @importFrom Matrix Diagonal
+#' @importFrom MASS ginv
 #' @importFrom methods is
 #' @export
-imputez <- function(z, Sigma, i, lambda = 0.1) {
+imputez <- function(z, Sigma, i, lambda = 0.1, useginv=FALSE) {
 
   stopifnot(nrow(Sigma) == ncol(Sigma))
   stopifnot(length(z) == ncol(Sigma))
@@ -70,7 +72,13 @@ imputez <- function(z, Sigma, i, lambda = 0.1) {
   # z_i = Sigma.shrink[i,-i] %*% solve(Sigma.shrink[-i,-i], z[-i])
   # W = Sigma.shrink[i,-i] %*% solve(Sigma.shrink[-i,-i])
   # weights
-  W <- solve(Sigma.shrink[-i, -i], Sigma.shrink[-i, i, drop = FALSE])
+  A <- Sigma.shrink[-i, -i]
+  b <- Sigma.shrink[-i, i, drop = FALSE]
+  if( useginv ){
+    W <- ginv(A) %*% b
+  }else{
+    W <- solve(A, b)
+  }
 
   # imputed z-scores
   z_i <- crossprod(W, z[-i])

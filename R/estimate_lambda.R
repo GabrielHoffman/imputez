@@ -21,7 +21,7 @@
 #' @importFrom ShrinkCovMat shrinkcovmat.equal
 #' @importFrom corpcor estimate.lambda
 #' @export
-estimate_lambda = function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )){
+estimate_lambda <- function(X, method = c("Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" )){
 
 	method <- match.arg(method)
 

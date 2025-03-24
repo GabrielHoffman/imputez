@@ -9,6 +9,7 @@
 #' @param flankWidth additional window added to \code{region} 
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
 #' @param lambda (default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}
+#' @param ... additional arguments passed to \code{imputez()} and \code{imputezDecorr()}
 #' 
 #' @return \code{tibble} storing imputed results:
 #' \describe{
@@ -56,7 +57,7 @@
 #' @importFrom Rfast standardise colsums
 #' @importFrom dplyr as_tibble
 #' @export
-impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL){
+impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL,...){
 
 	method <- match.arg(method)
 
@@ -121,12 +122,12 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 
 	# impute z-statistic
 	if( method == "decorrelate" ){
-		res <- imputezDecorr(z, X, idx, lambda = lambda)
+		res <- imputezDecorr(z, X, idx, lambda = lambda,...)
 	}else{
 		X_scaled = standardise(X)
 		lambda <- estimate_lambda(X_scaled, method)
 		C <- crossprod(X_scaled) / c(nrow(X)-1)
-		res <- imputez(z, C, idx, lambda = lambda)
+		res <- imputez(z, C, idx, lambda = lambda,...)
 	}
 
 	# Set alleles
@@ -186,6 +187,7 @@ get_analysis_windows = function(df, window){
 #' @param method method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}
 #' @param lambda (default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}
 #' @param quiet suppress messages
+#' @param ... additional arguments passed to \code{impute_region()}
 #'
 #' @details Implements method by Pasaniuc, et al. (2014).
 #'
@@ -240,7 +242,7 @@ get_analysis_windows = function(df, window){
 #' @importFrom GenomicDataStream setChunkSize
 #' @importFrom dplyr bind_rows
 #' @export
-run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE){
+run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE,...){
 
 	method <- match.arg(method)
 	gds <- setChunkSize(gds, 1e9)
@@ -261,7 +263,7 @@ run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "L
 	# impute in each region
 	res <- lapply(regions, function(region){
 	  	if (!quiet) pb$tick()
-		impute_region(df, gds, region, flankWidth, method, lambda)
+		impute_region(df, gds, region, flankWidth, method, lambda, ...)
 	})
 	res <- bind_rows(res)
 

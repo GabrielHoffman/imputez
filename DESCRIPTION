@@ -25,6 +25,7 @@ Imports:
 	dplyr,
 	Rfast,
 	progress,
+	MASS,
 	Matrix,
 	methods
 RoxygenNote: 7.3.2

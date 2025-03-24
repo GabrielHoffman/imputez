@@ -10,7 +10,8 @@ impute_region(
   region,
   flankWidth,
   method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"),
-  lambda = NULL
+  lambda = NULL,
+  ...
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ impute_region(
 \item{method}{method used to estimate shrinkage parameter lambda.  default is \code{"decorrelate"}}
 
 \item{lambda}{(default: NULL) value used to shrink correlation matrix. Only used if method is \code{"decorrelate"}}
+
+\item{...}{additional arguments passed to \code{imputez()} and \code{imputezDecorr()}}
 }
 \value{
 \code{tibble} storing imputed results:

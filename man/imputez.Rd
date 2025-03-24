@@ -4,7 +4,7 @@
 \alias{imputez}
 \title{Impute z-score based correlations}
 \usage{
-imputez(z, Sigma, i, lambda = 0.1)
+imputez(z, Sigma, i, lambda = 0.1, useginv = FALSE)
 }
 \arguments{
 \item{z}{vector of observed z-scores}
@@ -14,6 +14,8 @@ imputez(z, Sigma, i, lambda = 0.1)
 \item{i}{index of z-scores to impute}
 
 \item{lambda}{value used to shrink correlation matrix}
+
+\item{useginv}{if \code{TRUE} use pseudoinverse}
 }
 \value{
 \code{data.frame} storing:

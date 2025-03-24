@@ -57,7 +57,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">imputez</span><span class="op">(</span><span class="va">z</span>, <span class="va">Sigma</span>, <span class="va">i</span>, lambda <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">imputez</span><span class="op">(</span><span class="va">z</span>, <span class="va">Sigma</span>, <span class="va">i</span>, lambda <span class="op">=</span> <span class="fl">0.1</span>, useginv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -76,6 +76,10 @@
 
 <dt>lambda</dt>
 <dd><p>value used to shrink correlation matrix</p></dd>
+
+
+<dt>useginv</dt>
+<dd><p>if <code>TRUE</code> use pseudoinverse</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -133,9 +137,9 @@
 <span class="r-in"><span><span class="co"># using the other variants and observed z-statistics</span></span></span>
 <span class="r-in"><span><span class="co"># from the reference panel</span></span></span>
 <span class="r-in"><span><span class="fu">imputez</span><span class="op">(</span><span class="va">z</span>, <span class="va">C</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            ID    z.stat        se    r2.pred lambda</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1:11000:T:C 0.2912890 0.2965194 0.08792378    0.1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1:12000:T:C 0.1137581 0.3640927 0.13256353    0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            ID      z.stat        se    r2.pred lambda</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1:11000:T:C -0.02319561 0.2965194 0.08792378    0.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1:12000:T:C -0.06297708 0.3640927 0.13256353    0.1</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

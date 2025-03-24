@@ -60,7 +60,7 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
   stopifnot(length(z) == ncol(X))
   stopifnot(length(i) > 0)
 
-  X_exclude = X[, -i, drop = FALSE]
+  X_exclude <- X[, -i, drop = FALSE]
 
   ecl <- eclairs(X_exclude, k=k, compute = "correlation", lambda = lambda)
 
@@ -88,7 +88,7 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
 }
 
 # diag(crossprod(X,Y))
-dcrossprod = function(X, Y){
+dcrossprod <- function(X, Y){
   colSums(X * Y)
 }
 
