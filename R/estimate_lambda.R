@@ -10,13 +10,13 @@
 #' @return estimated lambda value
 #'
 #' @examples
-#' n = 100
-#' p = 400
+#' n <- 100
+#' p <- 400
 #' 
-#' X = matrix(rnorm(n*p), n, p)
+#' X <- matrix(rnorm(n*p), n, p)
 #' 
 #' estimate_lambda(X, "Ledoit-Wolf")
-#' 
+#
 #' @importFrom CovTools CovEst.2003LW CovEst.2010OAS
 #' @importFrom ShrinkCovMat shrinkcovmat.equal
 #' @importFrom corpcor estimate.lambda

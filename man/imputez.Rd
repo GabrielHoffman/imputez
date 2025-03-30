@@ -36,22 +36,22 @@ Implements method by Pasaniuc, et al. (2014).
 \examples{
 library(GenomicDataStream)
 library(mvtnorm)
-library(dplyr)
 
 # VCF file for reference
 file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 
 # initialize data stream
-gds = GenomicDataStream(file, "DS", initialize=TRUE)
+gds <- GenomicDataStream(file, "DS", initialize=TRUE)
 
 # read genotype data from reference
-dat = getNextChunk(gds)
+dat <- getNextChunk(gds)
 
 # simulate z-statistics with correlation structure
 # from the LD of the reference panel
-C = cor(dat$X)
-z = c(rmvnorm(1, rep(0, 10), C))
-names(z) = colnames(dat$X)
+C <- cor(dat$X)
+set.seed(1)
+z <- c(rmvnorm(1, rep(0, 10), C))
+names(z) <- colnames(dat$X)
 
 # Impute z-statistics for variants 2 and 3 
 # using the other variants and observed z-statistics

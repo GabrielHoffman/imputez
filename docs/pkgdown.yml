@@ -3,7 +3,7 @@ pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   ref_panel: ref_panel.html
-last_built: 2025-03-20T20:29Z
+last_built: 2025-03-30T23:23Z
 urls:
   reference: http://GabrielHoffman.github.io/imputez/reference
   article: http://GabrielHoffman.github.io/imputez/articles

@@ -21,11 +21,10 @@ estimated lambda value
 Estimate lambda shrinkage parameter with specified method
 }
 \examples{
-n = 100
-p = 400
+n <- 100
+p <- 400
 
-X = matrix(rnorm(n*p), n, p)
+X <- matrix(rnorm(n*p), n, p)
 
 estimate_lambda(X, "Ledoit-Wolf")
-
 }

@@ -53,17 +53,18 @@ library(dplyr)
 file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 
 # initialize data stream
-gds = GenomicDataStream(file, "DS", initialize=TRUE)
+gds <- GenomicDataStream(file, "DS", initialize=TRUE)
 
 # read genotype data from reference
-dat = getNextChunk(gds)
+dat <- getNextChunk(gds)
 
 # simulate z-statistics with correlation structure
 # from the LD of the reference panel
-z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+set.seed(1)
+z <- c(rmvnorm(1, rep(0, 10), cor(dat$X)))
 
 # Combine z-statistics with variant ID, position, etc
-df = dat$info \%>\%
+df <- dat$info \%>\%
 		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) \%>\%
 		rename(REF_A1 = A1, REF_A2 = A2)
 
@@ -72,6 +73,6 @@ df = dat$info \%>\%
 # Impute z-statistics from variants missing z-statistics.
 # Here drop variant 2, and then impute its z-statistic
 # Impute variants in the given region
-region = "1:1000-100000"
+region <- "1:1000-100000"
 impute_region(df[-2,], gds, region, 1000)
 }

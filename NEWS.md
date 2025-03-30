@@ -1,4 +1,9 @@
-# imputez 1.2.1
+# imputez 1.2.2
+  - March 30, 2025
+  - improve speed of `imputezDecorr()`
+  - add unit tests
+
+  # imputez 1.2.1
   - March 13, 2025
   - add `estimate_lambda()` and capability to use multiple shrinkage methods
 

@@ -1,10 +1,10 @@
 Package: imputez
 Type: Package
 Title: Impute z-Statistics for Missing Variants using Observed z-Statistics and Correlation Matrix Between Variants
-Version: 1.2.1
-Date: 2025-03-13
+Version: 1.2.2
+Date: 2025-03-30
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu", comment=c(ORCID="0000-0002-0957-0224"))
-Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants
+Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants.  Designed for high-dimensional datasets and incorporates regularization of correlation matrix to improve accuracy.  
 License: GPL-2
 Encoding: UTF-8
 URL: https://GabrielHoffman.github.io/imputez
@@ -13,6 +13,8 @@ VignetteBuilder: knitr
 Suggests:
 	mvtnorm,
 	knitr,
+	RUnit,
+	BiocGenerics,
 	rmarkdown
 Depends:
 	R (>= 4.3.0)

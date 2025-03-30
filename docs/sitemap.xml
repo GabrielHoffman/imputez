@@ -19,19 +19,10 @@
     <loc>http://GabrielHoffman.github.io/imputez/news/index.html</loc>
   </url>
   <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/constructLD.html</loc>
-  </url>
-  <url>
     <loc>http://GabrielHoffman.github.io/imputez/reference/estimate_lambda.html</loc>
   </url>
   <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/fillRate.html</loc>
-  </url>
-  <url>
     <loc>http://GabrielHoffman.github.io/imputez/reference/impute_region.html</loc>
-  </url>
-  <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/imputez.eclairs.html</loc>
   </url>
   <url>
     <loc>http://GabrielHoffman.github.io/imputez/reference/imputez.html</loc>
@@ -41,15 +32,6 @@
   </url>
   <url>
     <loc>http://GabrielHoffman.github.io/imputez/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/pairwiseCompleteWindow.html</loc>
-  </url>
-  <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/readLDMatrix.html</loc>
-  </url>
-  <url>
-    <loc>http://GabrielHoffman.github.io/imputez/reference/run_analysis.html</loc>
   </url>
   <url>
     <loc>http://GabrielHoffman.github.io/imputez/reference/run_imputez.html</loc>

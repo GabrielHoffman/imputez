@@ -31,17 +31,18 @@
 #' file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 #' 
 #' # initialize data stream
-#' gds = GenomicDataStream(file, "DS", initialize=TRUE)
+#' gds <- GenomicDataStream(file, "DS", initialize=TRUE)
 #' 
 #' # read genotype data from reference
-#' dat = getNextChunk(gds)
+#' dat <- getNextChunk(gds)
 #' 
 #' # simulate z-statistics with correlation structure
 #' # from the LD of the reference panel
-#' z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+#' set.seed(1)
+#' z <- c(rmvnorm(1, rep(0, 10), cor(dat$X)))
 #' 
 #' # Combine z-statistics with variant ID, position, etc
-#' df = dat$info %>%
+#' df <- dat$info %>%
 #' 		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) %>%
 #' 		rename(REF_A1 = A1, REF_A2 = A2)
 #' 
@@ -50,14 +51,14 @@
 #' # Impute z-statistics from variants missing z-statistics.
 #' # Here drop variant 2, and then impute its z-statistic
 #' # Impute variants in the given region
-#' region = "1:1000-100000"
+#' region <- "1:1000-100000"
 #' impute_region(df[-2,], gds, region, 1000)
 #
 #' @importFrom GenomicDataStream setRegion getNextChunk
 #' @importFrom Rfast standardise colsums
 #' @importFrom dplyr as_tibble
 #' @export
-impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL,...){
+impute_region <- function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL,...){
 
 	method <- match.arg(method)
 
@@ -124,7 +125,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 	if( method == "decorrelate" ){
 		res <- imputezDecorr(z, X, idx, lambda = lambda,...)
 	}else{
-		X_scaled = standardise(X)
+		X_scaled <- standardise(X)
 		if( is.null(lambda) ){
 			lambda <- estimate_lambda(X_scaled, method)
 		}
@@ -149,7 +150,7 @@ impute_region = function(df, gds, region, flankWidth, method = c("decorrelate", 
 }
 
 #' @importFrom dplyr group_by summarize `%>%`
-get_analysis_windows = function(df, window){
+get_analysis_windows <- function(df, window){
 
 	CHROM <- POS <- NULL 
 
@@ -216,17 +217,18 @@ get_analysis_windows = function(df, window){
 #' file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 #' 
 #' # initialize data stream
-#' gds = GenomicDataStream(file, "DS", initialize=TRUE)
+#' gds <- GenomicDataStream(file, "DS", initialize=TRUE)
 #' 
 #' # read genotype data from reference
-#' dat = getNextChunk(gds)
+#' dat <- getNextChunk(gds)
 #' 
 #' # simulate z-statistics with correlation structure
 #' # from the LD of the reference panel
-#' z = c(rmvnorm(1, rep(0, 10), cor(dat$X)))
+#' set.seed(1)
+#' z <- c(rmvnorm(1, rep(0, 10), cor(dat$X)))
 #' 
 #' # Combine z-statistics with variant ID, position, etc
-#' df = dat$info %>%
+#' df <- dat$info %>%
 #' 		mutate(z = z, GWAS_A1 = A1, GWAS_A2 = A2) %>%
 #' 		rename(REF_A1 = A1, REF_A2 = A2)
 #' 
@@ -234,7 +236,7 @@ get_analysis_windows = function(df, window){
 #' # GenomicDataStream of reference panel,
 #' # Impute z-statistics from variants missing z-statistics.
 #' # Here drop variant 2, and then impute its z-statistic
-#' res = run_imputez(df[-2,], gds, 10000, 1000)
+#' res <- run_imputez(df[-2,], gds, 10000, 1000)
 #' 
 #' # Results of imputed z-statistics
 #' res
@@ -244,12 +246,12 @@ get_analysis_windows = function(df, window){
 #' @importFrom GenomicDataStream setChunkSize
 #' @importFrom dplyr bind_rows
 #' @export
-run_imputez = function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE,...){
+run_imputez <- function(df, gds, window, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer"), lambda = NULL, quiet=FALSE,...){
 
 	method <- match.arg(method)
 	gds <- setChunkSize(gds, 1e9)
 
-	cols = c("ID", "z", "GWAS_A1", "GWAS_A2", "CHROM", "POS", "REF_A1", "REF_A2")
+	cols <- c("ID", "z", "GWAS_A1", "GWAS_A2", "CHROM", "POS", "REF_A1", "REF_A2")
 	if( ! any(cols %in% colnames(df)) ){
 		stop("df must have colnames: ID, z, GWAS_A1, GWAS_A1, CHROM, POS, REF_A1, REF_A2")
 	}

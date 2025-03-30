@@ -27,22 +27,22 @@
 #' @examples
 #' library(GenomicDataStream)
 #' library(mvtnorm)
-#' library(dplyr)
 #' 
 #' # VCF file for reference
 #' file <- system.file("extdata", "test.vcf.gz", package = "GenomicDataStream")
 #' 
 #' # initialize data stream
-#' gds = GenomicDataStream(file, "DS", initialize=TRUE)
+#' gds <- GenomicDataStream(file, "DS", initialize=TRUE)
 #' 
 #' # read genotype data from reference
-#' dat = getNextChunk(gds)
+#' dat <- getNextChunk(gds)
 #' 
 #' # simulate z-statistics with correlation structure
 #' # from the LD of the reference panel
-#' C = cor(dat$X)
-#' z = c(rmvnorm(1, rep(0, 10), C))
-#' names(z) = colnames(dat$X)
+#' C <- cor(dat$X)
+#' set.seed(1)
+#' z <- c(rmvnorm(1, rep(0, 10), C))
+#' names(z) <- colnames(dat$X)
 #
 #' # Impute z-statistics for variants 2 and 3 
 #' # using the other variants and observed z-statistics
@@ -55,11 +55,15 @@
 #' 
 #' @importFrom decorrelate eclairs decorrelate averageCorrSq
 #' @importFrom stats cor
+#' @importFrom Rfast standardise
 #' @export
 imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = NULL) {
 
   stopifnot(length(z) == ncol(X))
   stopifnot(length(i) > 0)
+
+  # standardize cols to have mean zero and var 1
+  X <- standardise(X) / sqrt(nrow(X)-1)
 
   X_exclude <- X[, -i, drop = FALSE]
 
@@ -72,7 +76,9 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
     ecl$lambda <- max(ecl$lambda, 1/sqrt(r))
   }
 
-  g <- (1 - ecl$lambda) * cor(X_exclude, X[, i,drop=FALSE])
+  # cross correlation
+  # g <- (1 - ecl$lambda) * cor(X_exclude, X[, i,drop=FALSE])
+  g <- (1 - ecl$lambda) * crossprod(X_exclude, X[, i,drop=FALSE])
 
   W <- decorrelate(g, ecl, alpha = -1, transpose = TRUE)
 
@@ -80,7 +86,7 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
 
   Sigma_i_t <- 1 - dcrossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1, lambda = 0))
 
-  se = sqrt(1 - Sigma_i_t)
+  se <- sqrt(1 - Sigma_i_t)
 
   data.frame(
     ID = names(z)[i],
