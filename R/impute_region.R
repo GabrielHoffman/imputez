@@ -129,7 +129,7 @@ impute_region <- function(df, gds, region, flankWidth, method = c("decorrelate",
 		if( is.null(lambda) ){
 			lambda <- estimate_lambda(X_scaled, method)
 		}
-		C <- crossprod(X_scaled) / c(nrow(X)-1)
+		C <- crossprod(X_scaled) / (nrow(X)-1)
 		res <- imputez(z, C, idx, lambda = lambda,...)
 	}
 
