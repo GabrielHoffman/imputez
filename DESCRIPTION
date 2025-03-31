@@ -4,7 +4,7 @@ Title: Impute z-Statistics for Missing Variants using Observed z-Statistics and 
 Version: 1.2.2
 Date: 2025-03-30
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu", comment=c(ORCID="0000-0002-0957-0224"))
-Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants.  Designed for high-dimensional datasets and incorporates regularization of correlation matrix to improve accuracy.  
+Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants.  Incorporates regularization of correlation matrix to improve accuracy.  Designed for high-dimensional datasets and uses a whitening transformation with implicit covariance to speed up computations.  
 License: GPL-2
 Encoding: UTF-8
 URL: https://GabrielHoffman.github.io/imputez

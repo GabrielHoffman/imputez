@@ -3,14 +3,24 @@
 
 ## Impute z-statistics for missing variants using observed z-statistics and LD matrix
 
-## Installation
+<div style="text-align: justify">
+Genome-wide association studies (GWAS) performs tests of association across millions of genetic variants.  The `imputez` package provides a series of statistical methods to impute the z-statistic for missing genetic variants by using LD information from a reference panel.  The package achieves high accuracy by regularizing the LD matrix and uses a probabilistic whitening transformation with implicit covariance to scale to high-dimensional datasets.  While standard analysis is cubic in the number of features, $p$, the package implements an algorithm that is the minimum of $\mathcal{O}(n p^2)$ and $\mathcal{O}(n^2 p)$.  For large number of features, this is can be a dramatic speedup.
+
+
+### Methods 
+- `imputezDecorr()`: scalable imputation using probabilistic whitening transformation with implicit covariance as implemented in the `decorrelation` package.
+- `imputez()`: standard method for comparison that is cubic time in $p$
+
+
+</div>
+
+
+### Installation
 ```r
 devtools::install_github("GabrielHoffman/imputez")
 ```
-Pasaniuc, et al. (2014).
 
-Uses implicit covariance and emprical Bayes shrinkage of the eigen-values to accelerate computations. \code{imputez()} is cubic in the number of features, p, but \code{imputezDecorr()}  is the minimum of O(n p^2) and O(n^2p).  For large number of features, this is can be a dramatic speedup.
-
+#### Example code
 ```r
 library(imputez)
 library(GenomicDataStream)
@@ -39,6 +49,7 @@ df = dat$info %>%
 # GenomicDataStream of reference panel,
 # Impute z-statistics from variants missing z-statistics.
 # Here drop variant 2, and then impute its z-statistic
+# Defaults to run imputezDecorr / decorrelate in the backend
 res = run_imputez(df[-2,], gds, 10000, 1000)
 
 # Results of imputed z-statistics
