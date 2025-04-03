@@ -125,12 +125,10 @@ impute_region <- function(df, gds, region, flankWidth, method = c("decorrelate",
 	if( method == "decorrelate" ){
 		res <- imputezDecorr(z, X, idx, lambda = lambda,...)
 	}else{
-		X_scaled <- standardise(X)
 		if( is.null(lambda) ){
-			lambda <- estimate_lambda(X_scaled, method)
+			lambda <- estimate_lambda(standardise(X), method)
 		}
-		C <- crossprod(X_scaled) / (nrow(X)-1)
-		res <- imputez(z, C, idx, lambda = lambda,...)
+		res <- imputez(z, cor(X), idx, lambda = lambda,...)
 	}
 
 	# Set alleles
