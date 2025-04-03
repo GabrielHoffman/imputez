@@ -43,7 +43,7 @@
 #' set.seed(1)
 #' z <- c(rmvnorm(1, rep(0, 10), C))
 #' names(z) <- colnames(dat$X)
-#
+#'
 #' # Impute z-statistics for variants 2 and 3 
 #' # using the other variants and observed z-statistics
 #' # from the reference panel
