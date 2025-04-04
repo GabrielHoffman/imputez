@@ -15,7 +15,7 @@ Genome-wide association studies (GWAS) performs tests of association across mill
 
 
 ### Methods 
-- `imputezDecorr()`: scalable imputation using probabilistic whitening transformation with implicit covariance as implemented in the `decorrelation` package.
+- `imputezDecorr()`: scalable imputation using probabilistic whitening transformation with implicit covariance as implemented in the [decorrelate](https://gabrielhoffman.github.io/decorrelate/) package.
 - `imputez()`: standard method for comparison that is cubic time in $p$
 
 
