@@ -1,3 +1,7 @@
+# imputez 1.2.3
+  - April 15, 2025
+  - add `coef_from_z()`
+
 # imputez 1.2.2
   - March 30, 2025
   - improve speed of `imputezDecorr()`

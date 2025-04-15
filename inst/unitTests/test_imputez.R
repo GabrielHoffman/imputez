@@ -20,3 +20,28 @@ test_imputez = function(){
 
 	checkEqualsNumeric(res[,-1], res2[,2:ncol(res)])
 }
+
+test_coef_from_z = function(){
+
+	# simulate data
+	set.seed(1)
+	n = 1000
+	x = rnorm(n, 0, 7)
+	y = x*3 + rnorm(n)
+	data = data.frame(x, y)
+
+	# fit regression model
+	fit <- lm(y ~ x, data=data)
+
+	# get z-statistic
+	z = coef(summary(fit))[2,'t value']
+
+	# coef and se from regression model
+	res1 = coef(summary(fit))[2,-4]
+
+	# coef and se from summary statistics
+	res2 = coef_from_z(z, n, sd(x), sd(y))
+
+	checkEqualsNumeric(res1[1:2], res2[1:2], tol=1e-5)
+	checkEqualsNumeric(z, with(res2, coef / se))
+}
