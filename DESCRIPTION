@@ -7,14 +7,17 @@ Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hof
 Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants.  Incorporates regularization of correlation matrix to improve accuracy.  Designed for high-dimensional datasets and uses a whitening transformation with implicit covariance to speed up computations.  
 License: GPL-2
 Encoding: UTF-8
-URL: https://GabrielHoffman.github.io/imputez
-BugReports: https://github.com/GabrielHoffman/imputez/issues
+URL: https://GabrielHoffman.github.io/imputez/
+BugReports: https://github.com/GabrielHoffman/imputez/issues/
 VignetteBuilder: knitr
 Suggests:
 	mvtnorm,
 	knitr,
 	RUnit,
 	BiocGenerics,
+	cowplot,
+	ggplot2, 
+	tidyverse,
 	rmarkdown
 Depends:
 	R (>= 4.3.0)
@@ -32,4 +35,5 @@ Imports:
 	methods
 RoxygenNote: 7.3.2
 Remotes: 
-	GabrielHoffman/decorrelate
+	GabrielHoffman/decorrelate,	
+	GabrielHoffman/GenomicDataStream

@@ -79,7 +79,7 @@ coef_from_z(z, n, sd(x), phi=phi)
 
 }
 \references{
-Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \url{https://doi.org/10.1038/ng.3538}
+Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \doi{10.1038/ng.3538}
 
-Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 \url{https://doi.org/10.1214/12-AOAS586}
+Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 \doi{10.1214/12-AOAS586}
 }

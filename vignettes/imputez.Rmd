@@ -7,7 +7,7 @@ documentclass: article
 output: 
     BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{1000 Genomes reference panel}
+  %\VignetteIndexEntry{Imputing z-statistics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}

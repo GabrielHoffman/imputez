@@ -66,9 +66,9 @@
 #' Second, the coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to \deqn{\beta / (\phi(1-\phi)),} where \eqn{\phi} is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.
 #' 
 #' @references
-#' Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \url{https://doi.org/10.1038/ng.3538}
+#' Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \doi{10.1038/ng.3538}
 #' 
-#' Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 \url{https://doi.org/10.1214/12-AOAS586}
+#' Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 \doi{10.1214/12-AOAS586}
 #' 
 #' @export
 coef_from_z <- function(z, n, sd_x, sd_y, phi){
