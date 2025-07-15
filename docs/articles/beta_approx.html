@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Approximating logistic coefficients • imputez</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="../katex-auto.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -65,7 +66,7 @@ analysis</h3>
 </h4>
             
             <h4 data-toc-skip class="date">Run on 2025-07-15
-10:34:47.396961</h4>
+11:06:24.756854</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/GabrielHoffman/imputez/blob/HEAD/vignettes/beta_approx.Rmd" class="external-link"><code>vignettes/beta_approx.Rmd</code></a></small>
       <div class="d-none name"><code>beta_approx.Rmd</code></div>
@@ -73,13 +74,107 @@ analysis</h3>
 
     
     
-<p>Using the z-statistic to approximate the coefficient from logistic
-regression model is most accurate for large sample size, balanced class
-ratio
-(i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϕ</mi><annotation encoding="application/x-tex">\phi</annotation></semantics></math>
-near 0.5), and small
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>.</p>
+<p>Given a z-statistic, we want to obtain the coefficient value from a
+linear regression. Adapting the approach from <a href="https://doi.org/10.1038/ng.3538" class="external-link">Zhu, et al (2016, Methods eqn
+6)</a>, we estimate the coefficient as <span class="math display">\beta
+= z * sd_y / (sd_x*sqrt(n + z^2)),</span> where <span class="math inline">sd_x</span> is the standard deviation of the
+covariate and <span class="math inline">sd_y</span> is the standard
+error of the response. For a model with no covariates, this
+transformation gives the exact coefficient estimate. With covariates, it
+is approximate.</p>
+<p>Second, the coeffient estimate from linear regression can be
+converted to the logistic scale using the approach of <a href="https://doi.org/10.1214/12-AOAS586" class="external-link">Pirinen, et al. (2013)</a>
+according to <span class="math display">\beta / (\phi(1-\phi)),</span>
+where <span class="math inline">\phi</span> is the case ratio in the
+logistic regression. This approximates the coefficient as if the model
+had been fit with logistic regression. This is implemented in
+<code><a href="../reference/coef_from_z.html">coef_from_z()</a></code>.</p>
+<p>We see here that using the z-statistic to approximate the coefficient
+from logistic regression model is most accurate for large sample size,
+balanced class ratio (i.e. <span class="math inline">\phi</span> near
+0.5), and small <span class="math inline">\beta</span>.</p>
 <p><img src="beta_approx_files/figure-html/plot-1.png" width="960"></p>
+<div class="section level2">
+<h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+</h2>
+<details><pre><code><span><span class="co">## R version 4.4.2 (2024-10-31)</span></span>
+<span><span class="co">## Platform: aarch64-apple-darwin23.6.0</span></span>
+<span><span class="co">## Running under: macOS Sonoma 14.7.1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Matrix products: default</span></span>
+<span><span class="co">## BLAS:   /Users/gabrielhoffman/prog/R-4.4.2/lib/libRblas.dylib </span></span>
+<span><span class="co">## LAPACK: /opt/homebrew/Cellar/r/4.5.1/lib/R/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## locale:</span></span>
+<span><span class="co">## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## time zone: America/New_York</span></span>
+<span><span class="co">## tzcode source: internal</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## attached base packages:</span></span>
+<span><span class="co">## [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## other attached packages:</span></span>
+<span><span class="co">##  [1] cowplot_1.1.3   lubridate_1.9.4 forcats_1.0.0   stringr_1.5.1  </span></span>
+<span><span class="co">##  [5] dplyr_1.1.4     purrr_1.0.4     readr_2.1.5     tidyr_1.3.1    </span></span>
+<span><span class="co">##  [9] tibble_3.3.0    ggplot2_3.5.2   tidyverse_2.0.0 imputez_1.2.3  </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## loaded via a namespace (and not attached):</span></span>
+<span><span class="co">##   [1] Rdpack_2.6.4                rlang_1.1.6                </span></span>
+<span><span class="co">##   [3] magrittr_2.0.3              matrixStats_1.5.0          </span></span>
+<span><span class="co">##   [5] compiler_4.4.2              systemfonts_1.2.3          </span></span>
+<span><span class="co">##   [7] vctrs_0.6.5                 pkgconfig_2.0.3            </span></span>
+<span><span class="co">##   [9] crayon_1.5.3                fastmap_1.2.0              </span></span>
+<span><span class="co">##  [11] XVector_0.46.0              labeling_0.4.3             </span></span>
+<span><span class="co">##  [13] CholWishart_1.1.4           rmarkdown_2.29             </span></span>
+<span><span class="co">##  [15] tzdb_0.5.0                  pracma_2.4.4               </span></span>
+<span><span class="co">##  [17] UCSC.utils_1.2.0            ragg_1.4.0                 </span></span>
+<span><span class="co">##  [19] xfun_0.52                   Rfast_2.1.5.1              </span></span>
+<span><span class="co">##  [21] zlibbioc_1.52.0             cachem_1.1.0               </span></span>
+<span><span class="co">##  [23] beachmat_2.22.0             GenomeInfoDb_1.42.3        </span></span>
+<span><span class="co">##  [25] jsonlite_2.0.0              progress_1.2.3             </span></span>
+<span><span class="co">##  [27] rhdf5filters_1.18.1         DelayedArray_0.32.0        </span></span>
+<span><span class="co">##  [29] Rhdf5lib_1.28.0             irlba_2.3.5.1              </span></span>
+<span><span class="co">##  [31] parallel_4.4.2              prettyunits_1.2.0          </span></span>
+<span><span class="co">##  [33] R6_2.6.1                    bslib_0.9.0                </span></span>
+<span><span class="co">##  [35] stringi_1.8.7               RColorBrewer_1.1-3         </span></span>
+<span><span class="co">##  [37] GenomicRanges_1.58.0        jquerylib_0.1.4            </span></span>
+<span><span class="co">##  [39] Rcpp_1.0.14                 SummarizedExperiment_1.36.0</span></span>
+<span><span class="co">##  [41] iterators_1.0.14            knitr_1.50                 </span></span>
+<span><span class="co">##  [43] CovTools_0.5.4              base64enc_0.1-3            </span></span>
+<span><span class="co">##  [45] IRanges_2.40.1              timechange_0.3.0           </span></span>
+<span><span class="co">##  [47] Matrix_1.7-3                igraph_2.1.4               </span></span>
+<span><span class="co">##  [49] tidyselect_1.2.1            abind_1.4-8                </span></span>
+<span><span class="co">##  [51] yaml_2.3.10                 doParallel_1.0.17          </span></span>
+<span><span class="co">##  [53] codetools_0.2-20            minpack.lm_1.2-4           </span></span>
+<span><span class="co">##  [55] lattice_0.22-7              withr_3.0.2                </span></span>
+<span><span class="co">##  [57] Biobase_2.66.0              evaluate_1.0.4             </span></span>
+<span><span class="co">##  [59] desc_1.4.3                  geigen_2.3                 </span></span>
+<span><span class="co">##  [61] RcppParallel_5.1.10         pillar_1.10.2              </span></span>
+<span><span class="co">##  [63] MatrixGenerics_1.18.1       ShrinkCovMat_1.4.0         </span></span>
+<span><span class="co">##  [65] foreach_1.5.2               SHT_0.1.9                  </span></span>
+<span><span class="co">##  [67] stats4_4.4.2                generics_0.1.4             </span></span>
+<span><span class="co">##  [69] S4Vectors_0.44.0            hms_1.1.3                  </span></span>
+<span><span class="co">##  [71] scales_1.4.0                flare_1.7.0.2              </span></span>
+<span><span class="co">##  [73] glue_1.8.0                  GenomicDataStream_0.0.60   </span></span>
+<span><span class="co">##  [75] scatterplot3d_0.3-44        tools_4.4.2                </span></span>
+<span><span class="co">##  [77] beachmat.hdf5_1.4.0         fs_1.6.6                   </span></span>
+<span><span class="co">##  [79] mvtnorm_1.3-3               rgl_1.3.18                 </span></span>
+<span><span class="co">##  [81] rhdf5_2.50.2                grid_4.4.2                 </span></span>
+<span><span class="co">##  [83] rbibutils_2.3               GenomeInfoDbData_1.2.13    </span></span>
+<span><span class="co">##  [85] HDF5Array_1.34.0            cli_3.6.5                  </span></span>
+<span><span class="co">##  [87] zigg_0.0.2                  textshaping_1.0.1          </span></span>
+<span><span class="co">##  [89] expm_1.0-0                  S4Arrays_1.6.0             </span></span>
+<span><span class="co">##  [91] corpcor_1.6.10              gtable_0.3.6               </span></span>
+<span><span class="co">##  [93] shapes_1.2.7                sass_0.4.10                </span></span>
+<span><span class="co">##  [95] digest_0.6.37               BiocGenerics_0.52.0        </span></span>
+<span><span class="co">##  [97] SparseArray_1.6.2           htmlwidgets_1.6.4          </span></span>
+<span><span class="co">##  [99] farver_2.1.2                htmltools_0.5.8.1          </span></span>
+<span><span class="co">## [101] pkgdown_2.1.3               decorrelate_0.1.6.3        </span></span>
+<span><span class="co">## [103] lifecycle_1.0.4             httr_1.4.7                 </span></span>
+<span><span class="co">## [105] MASS_7.3-65</span></span></code></pre>
+</details>
+</div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
