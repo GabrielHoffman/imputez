@@ -1,0 +1,161 @@
+---
+title: "Approximating logistic coefficients"
+subtitle: 'A simulation analysis'
+author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
+date: "Run on `r Sys.time()`"
+documentclass: article
+output: 
+  html_document:
+      fig_caption: yes
+  toc: true
+  smart: true
+vignette: >
+  %\VignetteIndexEntry{Approximating logistic coefficients}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+
+```{r setup, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(
+  tidy = FALSE,
+  cache = TRUE,
+  echo = FALSE,
+  dev = c("png", "pdf"),
+  package.startup.message = FALSE,
+  message = FALSE,
+  error = FALSE,
+  warning = FALSE
+)
+``` 
+
+Using the z-statistic to approximate the coefficient from logistic regression model is most accurate for large sample size, balanced class ratio (i.e. $\phi$ near 0.5), and small $\beta$. 
+
+```{r load, cache=FALSE}
+library(imputez)
+library(tidyverse)
+library(ggplot2)
+library(cowplot)
+
+# simulate data
+
+p = .5
+
+get_estimates = function(mu, beta, n){
+
+  x = rbinom(n, 2, p)
+  x = x - mean(x)
+
+  eta = mu + x*beta
+  y = rbinom(n, size=1, prob=plogis(eta))
+  data = data.frame(x, y)
+
+  fit <- glm(y ~ x, data=data, family=binomial)
+  z = coef(summary(fit))[2,3]
+  phi = sum(y) / length(y)
+
+  beta_logit = coef(summary(fit))[2,]
+
+  beta_hat = coef_from_z(z, n, sd(x), phi=phi)
+
+  data.frame(beta_logit = beta_logit[1], 
+            beta_hat = beta_hat[1],
+            phi = phi)
+}
+```
+
+```{r sim1}
+# Sample size
+#############
+
+n_array = 10^seq(2.2, 5, length.out=20)
+
+res = lapply(floor(n_array), function(n){
+  lapply(seq(20), function(i){
+    set.seed(i)
+    get_estimates(0, .1, n)
+  }) %>%
+  bind_rows %>%
+  summarize(rMSE = sqrt(mean((beta_logit-coef)^2))) %>%
+  mutate(n = n)
+})
+res = bind_rows(res)
+
+thm = theme_classic() +
+    theme(aspect.ratio=1)
+
+fig1 = res %>%
+  ggplot(aes(n, rMSE )) +
+    geom_point() +
+    thm +
+    scale_x_log10() +
+    scale_y_log10() +
+    ylab("Root mean squared error")
+```
+
+
+```{r sim2}
+# Phi
+######
+
+n = 1000
+mu_array = seq(-2.5, 2.5, length.out=100)
+
+res = lapply(mu_array, function(mu){
+  lapply(seq(100), function(i){
+    set.seed(i)
+    get_estimates(mu, 0, n)
+  }) %>%
+  bind_rows %>%
+  summarize(rMSE = sqrt(mean((beta_logit-coef)^2)), phi = mean(phi)) %>%
+  mutate(mu = mu)
+})
+res = bind_rows(res)
+
+fig2 = res %>%
+  ggplot(aes(phi, rMSE )) +
+    geom_point() +
+    thm +
+    scale_x_continuous(limits=c(0, 1), expand=c(0,0)) +
+    xlab(bquote(phi)) +
+    ylab("Root mean squared error")
+```
+
+
+```{r sim3}
+# beta
+######
+
+n = 10000
+mu = 0
+beta_array = seq(-1, 1, length.out=100)
+
+res = lapply(beta_array, function(beta){
+  lapply(seq(10), function(i){
+    set.seed(i)
+    get_estimates(mu, beta, n)
+  }) %>%
+  bind_rows %>%
+  summarize(rMSE = sqrt(mean((beta_logit-coef)^2))) %>%
+  mutate(beta = beta)
+})
+res = bind_rows(res)
+
+fig3 = res %>%
+  ggplot(aes(beta, rMSE )) +
+    geom_point() +
+    thm +
+    xlab(bquote(beta)) +
+    ylab("Root mean squared error")
+```
+
+
+```{r plot, cache=FALSE, fig.width=10, fig.height=3.5}
+plot_grid(fig1, fig2, fig3, nrow=1, labels=LETTERS[1:3])
+```
+
+
+
+
+

@@ -1,11 +1,11 @@
-pandoc: 3.6.3
-pkgdown: 2.0.9
+pandoc: 3.7.0.2
+pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
+  beta_approx: beta_approx.html
   imputez: imputez.html
   ref_panel: ref_panel.html
-last_built: 2025-04-15T18:07Z
+last_built: 2025-07-15T14:32Z
 urls:
   reference: http://GabrielHoffman.github.io/imputez/reference
   article: http://GabrielHoffman.github.io/imputez/articles
-
