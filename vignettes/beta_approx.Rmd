@@ -30,9 +30,9 @@ knitr::opts_chunk$set(
 )
 ``` 
 
-Given a z-statistic, we want to obtain the coefficient value from a linear regression. Adapting the approach from [Zhu, et al (2016, Methods eqn 6)](https://doi.org/10.1038/ng.3538), we estimate the coefficient as $$\beta = z * sd_y / (sd_x*sqrt(n + z^2)),$$ where \(sd_x\) is the standard deviation of the covariate and \(sd_y\) is the standard error of the response. For a model with no covariates, this transformation gives the exact coefficient estimate. With covariates, it is approximate.
+Given a z-statistic, we want to obtain the coefficient value from a linear regression. Adapting the approach from [Zhu, et al (2016, Methods eqn 6)](https://doi.org/10.1038/ng.3538), we estimate the coefficient as $$\beta_{linear} = z * sd_y / (sd_x*sqrt(n + z^2)),$$ where \(sd_x\) is the standard deviation of the covariate and \(sd_y\) is the standard error of the response. For a model with no covariates, this transformation gives the exact coefficient estimate. With covariates, it is approximate.
 
-Second, the coeffient estimate from linear regression can be converted to the logistic scale using the approach of [Pirinen, et al. (2013)](https://doi.org/10.1214/12-AOAS586) according to $$\beta / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression. This approximates the coefficient as if the model had been fit with logistic regression.  This is implemented in `coef_from_z()`.
+The coeffient estimate from linear regression can be converted to the logistic scale using the approach of [Pirinen, et al. (2013)](https://doi.org/10.1214/12-AOAS586) according to $$\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression. This approximates the coefficient as if the model had been fit with logistic regression.  This is implemented in `coef_from_z()`.
 
 We see here that using the z-statistic to approximate the coefficient from logistic regression model is most accurate for large sample size, balanced class ratio (i.e. $\phi$ near 0.5), and small $\beta$. 
 
@@ -76,7 +76,7 @@ get_estimates = function(mu, beta, n){
 n_array = 10^seq(2.2, 5, length.out=20)
 
 res = lapply(floor(n_array), function(n){
-  lapply(seq(20), function(i){
+  lapply(seq(100), function(i){
     set.seed(i)
     get_estimates(0, .1, n)
   }) %>%
@@ -103,8 +103,8 @@ fig1 = res %>%
 # Phi
 ######
 
-n = 1000
-mu_array = seq(-2.5, 2.5, length.out=100)
+n = 10000
+mu_array = seq(-2.5, 2.5, length.out=30)
 
 res = lapply(mu_array, function(mu){
   lapply(seq(100), function(i){
@@ -133,7 +133,7 @@ fig2 = res %>%
 
 n = 10000
 mu = 0
-beta_array = seq(-1, 1, length.out=100)
+beta_array = seq(-1, 1, length.out=30)
 
 res = lapply(beta_array, function(beta){
   lapply(seq(10), function(i){
@@ -155,9 +155,11 @@ fig3 = res %>%
 ```
 
 
-```{r plot, cache=FALSE, fig.width=10, fig.height=3.5}
+```{r plot, cache=FALSE, fig.width=8, fig.height=3, fig.cap="**Accuracy of approxmating $\\beta$ from z-statistics.** **A**) Sample size is varied with $\\beta=0$, $\\phi=0.5$ **B**) Case ratio is varied with $\\beta=0$, $n=10,000$ **C**) $\\beta$ is varied with $\\phi=0.5$, $n=10,000$"}
 plot_grid(fig1, fig2, fig3, nrow=1, labels=LETTERS[1:3])
 ```
+
+
 
 
 

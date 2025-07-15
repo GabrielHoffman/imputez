@@ -66,7 +66,7 @@ analysis</h3>
 </h4>
             
             <h4 data-toc-skip class="date">Run on 2025-07-15
-11:06:24.756854</h4>
+13:26:10.517596</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/GabrielHoffman/imputez/blob/HEAD/vignettes/beta_approx.Rmd" class="external-link"><code>vignettes/beta_approx.Rmd</code></a></small>
       <div class="d-none name"><code>beta_approx.Rmd</code></div>
@@ -76,24 +76,30 @@ analysis</h3>
     
 <p>Given a z-statistic, we want to obtain the coefficient value from a
 linear regression. Adapting the approach from <a href="https://doi.org/10.1038/ng.3538" class="external-link">Zhu, et al (2016, Methods eqn
-6)</a>, we estimate the coefficient as <span class="math display">\beta
-= z * sd_y / (sd_x*sqrt(n + z^2)),</span> where <span class="math inline">sd_x</span> is the standard deviation of the
-covariate and <span class="math inline">sd_y</span> is the standard
-error of the response. For a model with no covariates, this
-transformation gives the exact coefficient estimate. With covariates, it
-is approximate.</p>
-<p>Second, the coeffient estimate from linear regression can be
-converted to the logistic scale using the approach of <a href="https://doi.org/10.1214/12-AOAS586" class="external-link">Pirinen, et al. (2013)</a>
-according to <span class="math display">\beta / (\phi(1-\phi)),</span>
-where <span class="math inline">\phi</span> is the case ratio in the
-logistic regression. This approximates the coefficient as if the model
-had been fit with logistic regression. This is implemented in
+6)</a>, we estimate the coefficient as <span class="math display">\beta_{linear} = z * sd_y / (sd_x*sqrt(n +
+z^2)),</span> where <span class="math inline">sd_x</span> is the
+standard deviation of the covariate and <span class="math inline">sd_y</span> is the standard error of the response.
+For a model with no covariates, this transformation gives the exact
+coefficient estimate. With covariates, it is approximate.</p>
+<p>The coeffient estimate from linear regression can be converted to the
+logistic scale using the approach of <a href="https://doi.org/10.1214/12-AOAS586" class="external-link">Pirinen, et al. (2013)</a>
+according to <span class="math display">\beta_{logistic} =
+\beta_{linear} / (\phi(1-\phi)),</span> where <span class="math inline">\phi</span> is the case ratio in the logistic
+regression. This approximates the coefficient as if the model had been
+fit with logistic regression. This is implemented in
 <code><a href="../reference/coef_from_z.html">coef_from_z()</a></code>.</p>
 <p>We see here that using the z-statistic to approximate the coefficient
 from logistic regression model is most accurate for large sample size,
 balanced class ratio (i.e. <span class="math inline">\phi</span> near
 0.5), and small <span class="math inline">\beta</span>.</p>
-<p><img src="beta_approx_files/figure-html/plot-1.png" width="960"></p>
+<div class="figure">
+<img src="beta_approx_files/figure-html/plot-1.png" alt="**Accuracy of approxmating $\beta$ from z-statistics.** **A**) Sample size is varied with $\beta=0$, $\phi=0.5$ **B**) Case ratio is varied with $\beta=0$, $n=10,000$ **C**) $\beta$ is varied with $\phi=0.5$, $n=10,000$" width="768"><p class="caption">
+<strong>Accuracy of approxmating <span class="math inline">\beta</span>
+from z-statistics.</strong> <strong>A</strong>) Sample size is varied
+with <span class="math inline">\beta=0</span>, <span class="math inline">\phi=0.5</span> <strong>B</strong>) Case ratio is
+varied with <span class="math inline">\beta=0</span>, <span class="math inline">n=10,000</span> <strong>C</strong>) <span class="math inline">\beta</span> is varied with <span class="math inline">\phi=0.5</span>, <span class="math inline">n=10,000</span>
+</p>
+</div>
 <div class="section level2">
 <h2 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>

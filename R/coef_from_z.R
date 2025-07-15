@@ -61,9 +61,9 @@
 #' coef_from_z(z, n, sd(x), phi=phi)
 #' 
 #' @details
-#' Given a z-statistic, we want to obtain the coefficient value from a linear regression.  Adapting the approach from Zhu, et al (2016, Methods eqn 6), we estimate the coefficient as \deqn{\beta = z * sd_y / (sd_x*sqrt(n + z^2)),} where \eqn{sd_x} is the standard deviation of the covariate and \eqn{sd_y} is the standard error of the response.  For a model with no covariates, this transformation gives the exact coefficient estimate.  With covariates, it is approximate.
+#' Given a z-statistic, we want to obtain the coefficient value from a linear regression.  Adapting the approach from Zhu, et al (2016, Methods eqn 6), we estimate the coefficient as \deqn{\beta_{linear} = z * sd_y / (sd_x*sqrt(n + z^2)),} where \eqn{sd_x} is the standard deviation of the covariate and \eqn{sd_y} is the standard error of the response.  For a model with no covariates, this transformation gives the exact coefficient estimate.  With covariates, it is approximate.
 #' 
-#' Second, the coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to \deqn{\beta / (\phi(1-\phi)),} where \eqn{\phi} is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.
+#' The coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to \deqn{\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),} where \eqn{\phi} is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.
 #' 
 #' @references
 #' Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \doi{10.1038/ng.3538}
