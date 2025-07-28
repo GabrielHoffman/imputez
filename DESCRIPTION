@@ -1,8 +1,8 @@
 Package: imputez
 Type: Package
 Title: Impute z-Statistics for Missing Variants using Observed z-Statistics and Correlation Matrix Between Variants
-Version: 1.2.3
-Date: 2025-04-15
+Version: 1.2.4
+Date: 2025-07-28
 Authors@R: person("Gabriel", "Hoffman", role=c("aut", "cre"), email="gabriel.hoffman@mssm.edu", comment=c(ORCID="0000-0002-0957-0224"))
 Description: Impute z-statistics for missing variants using observed z-statistics and correlation matrix between variants.  Incorporates regularization of correlation matrix to improve accuracy.  Designed for high-dimensional datasets and uses a whitening transformation with implicit covariance to speed up computations.  
 License: GPL-2

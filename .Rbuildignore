@@ -3,3 +3,4 @@ _files$
 ^docs$
 _pkgdown.yml
 TODO
+.*html$

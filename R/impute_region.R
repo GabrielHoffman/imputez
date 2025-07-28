@@ -57,6 +57,7 @@
 #' @importFrom GenomicDataStream setRegion getNextChunk
 #' @importFrom Rfast standardise colsums
 #' @importFrom dplyr as_tibble
+#' @importFrom stats cor
 #' @export
 impute_region <- function(df, gds, region, flankWidth, method = c("decorrelate", "Ledoit-Wolf", "OAS", "Touloumis", "Schafer-Strimmer" ), lambda = NULL,...){
 

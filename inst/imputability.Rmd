@@ -1,0 +1,114 @@
+---
+title: "Evaluating imputation quality"
+subtitle: 'Examining MAF and window size'
+author: "Developed by [Gabriel Hoffman](http://gabrielhoffman.github.io/)"
+date: "Run on `r Sys.time()`"
+documentclass: article
+output: 
+  html_document:
+      fig_caption: yes
+  toc: true
+  smart: true
+vignette: >
+  %\VignetteIndexEntry{Evaluating imputation quality}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+---
+
+<!----
+
+devtools::reload("~/workspace/repos/imputez")
+
+
+rmarkdown::render("imputability.Rmd")
+
+---->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  tidy = FALSE,
+  dev = c("png", "pdf"),
+  cache = TRUE
+)
+```
+
+```{r eval1}
+library(GenomicDataStream)
+library(tidyverse)
+library(imputez)
+library(ggplot2)
+library(scattermore)
+
+file <- "~/Downloads/1kg_chr1.bcf"
+MAF = 1e-2
+gds <- GenomicDataStream(file, "GT", MAF=MAF, initialize=TRUE)
+
+file <- "~/Downloads/1kg_chr1.map"
+df = read_tsv(file, show_col_types=FALSE)
+
+ids = df$ID[seq(1, nrow(df), by=100)]
+res = run_imputability(df, gds, 10000, 1000, ids)
+```
+
+```{r plot1, cache=FALSE}
+breaks = log10(c(0.01, 0.05, .1, .5))
+
+res %>%
+  ggplot(aes(log10(maf), r2.pred)) +
+    geom_scattermore(pointsize=2) +
+    geom_smooth(se=FALSE) + 
+    theme_classic() +
+    theme(aspect.ratio=1) +
+    xlab("Minor allele frequency (log10 scale)") +
+    ylab(bquote(Imputation~r^2)) +
+    scale_y_continuous(limits=c(0, 1), expand=c(0,0)) +
+    scale_x_continuous(limits=c(log10(MAF), log10(0.5)), breaks = breaks, labels=10^breaks, expand=c(0,0))
+```
+
+```{r eval_windows}
+windows = c(1000, 10000, 50000)
+res = lapply( windows, function(wnd){
+  res = run_imputability(df, gds, wnd, 1000, ids)
+  res$window = wnd
+  res
+  }) %>%
+bind_rows
+```
+
+```{r plot2, cache=FALSE, fig.width=9, fig.height=5}
+res %>%
+  ggplot(aes(log10(maf), r2.pred)) +
+    geom_scattermore(pointsize=2) +
+    geom_smooth(se=FALSE) + 
+    theme_classic() +
+    theme(aspect.ratio=1) +
+    xlab("Minor allele frequency (log10 scale)") +
+    ylab(bquote(Imputation~r^2)) +
+    scale_y_continuous(limits=c(0, 1), expand=c(0,0)) +
+    scale_x_continuous(limits=c(log10(MAF), log10(0.5)), breaks = breaks, labels=10^breaks, expand=c(0,0)) +
+    facet_wrap(~window) +
+    scale_colour_brewer(palette="Set1")
+```
+
+```{r plot3, cache=FALSE}
+res %>%
+  mutate(window = factor(window)) %>%
+  ggplot(aes(log10(maf), r2.pred, color=window)) +
+    geom_smooth(se=FALSE) + 
+    theme_classic() +
+    theme(aspect.ratio=1) +
+    xlab("Minor allele frequency (log10 scale)") +
+    ylab(bquote(Imputation~r^2)) +
+    scale_y_continuous(limits=c(0, 1), expand=c(0,0)) +
+    scale_x_continuous(limits=c(log10(MAF), log10(0.5)), breaks = breaks, labels=10^breaks, expand=c(0,0)) +
+    scale_colour_brewer(palette="Set1")
+```
+
+
+

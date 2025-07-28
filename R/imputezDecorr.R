@@ -54,7 +54,6 @@
 #' Pasaniuc, B., Zaitlen, N., Shi, H., Bhatia, G., Gusev, A., Pickrell, J., ... & Price, A. L. (2014). Fast and accurate imputation of summary statistics enhances evidence of functional enrichment. Bioinformatics, 30(20), 2906-2914.
 #' 
 #' @importFrom decorrelate eclairs decorrelate averageCorrSq
-#' @importFrom stats cor
 #' @importFrom Rfast standardise
 #' @export
 imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = NULL) {
@@ -82,11 +81,11 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
 
   W <- decorrelate(g, ecl, alpha = -1, transpose = TRUE)
 
-  z_i <- crossprod(W, z[-i])
-
   Sigma_i_t <- 1 - dcrossprod(W, decorrelate(W, ecl, transpose = TRUE, alpha = 1, lambda = 0))
-
   se <- sqrt(1 - Sigma_i_t)
+
+  # imputed z-statistic 
+  z_i <- crossprod(W, z[-i])
 
   data.frame(
     ID = names(z)[i],
@@ -98,8 +97,13 @@ imputezDecorr <- function(z, X, i, k=min(nrow(X), ncol(X)-length(i)), lambda = N
   )
 }
 
+
+
 # diag(crossprod(X,Y))
 dcrossprod <- function(X, Y){
   colSums(X * Y)
 }
+
+
+
 
