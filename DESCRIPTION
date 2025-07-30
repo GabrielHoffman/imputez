@@ -22,7 +22,7 @@ Suggests:
 Depends:
 	R (>= 4.3.0)
 Imports:
-	decorrelate,
+	decorrelate (>= 0.1.6),
 	GenomicDataStream,
 	CovTools,
 	ShrinkCovMat,
