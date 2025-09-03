@@ -22,8 +22,8 @@ res = lapply(seq(1000), function(i){
 	# coef and se from regression model
 	coef(summary(fit))[2,]
 
-	res1 = coef_from_z(z, n, sd(x), phi=phi)
-	res2 = coef_from_z(z, 4*n*phi*(1-phi), sd(x), sd(y))
+	res1 = coef_from_z(z, n, sd(x), phi=phi, p=p)
+	res2 = coef_from_z(z, 4*n*phi*(1-phi), sd(x), sd(y), p=p)
 
 	data.frame(coef_true = coef(fit)[2],
 		coef1 = res1$coef, 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">imputez</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">coef_from_z</span><span class="op">(</span><span class="va">z</span>, <span class="va">n</span>, <span class="va">sd_x</span>, <span class="va">sd_y</span>, <span class="va">phi</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">coef_from_z</span><span class="op">(</span><span class="va">z</span>, <span class="va">n</span>, <span class="va">sd_x</span>, <span class="va">sd_y</span>, <span class="va">phi</span>, <span class="va">p</span>, useMethod <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,6 +71,14 @@
 <dt id="arg-phi">phi<a class="anchor" aria-label="anchor" href="#arg-phi"></a></dt>
 <dd><p>case ratio in the response for logistic regression.  If specified, <code>sd_y</code> is set to <code>phi</code> and the coefficient is transformed to the logistic scale</p></dd>
 
+
+<dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
+<dd><p>allele frequency of baseline allele</p></dd>
+
+
+<dt id="arg-usemethod">useMethod<a class="anchor" aria-label="anchor" href="#arg-usemethod"></a></dt>
+<dd><p>numeric.  1: first order method from Pirinen, et al. 2: second order method from Pirinen, et al. 3: method from Lloyd-Jones, et al.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -79,12 +87,13 @@
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Given a z-statistic, we want to obtain the coefficient value from a linear regression.  Adapting the approach from Zhu, et al (2016, Methods eqn 6), we estimate the coefficient as $$\beta_{linear} = z * sd_y / (sd_x*sqrt(n + z^2)),$$ where \(sd_x\) is the standard deviation of the covariate and \(sd_y\) is the standard error of the response.  For a model with no covariates, this transformation gives the exact coefficient estimate.  With covariates, it is approximate.</p>
-<p>The coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to $$\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.</p>
+<p>The coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to $$\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.  An alternative approximation is given by Lloyd-Jones, et al. (2018).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 <a href="https://doi.org/10.1038/ng.3538" class="external-link">doi:10.1038/ng.3538</a></p>
 <p>Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 <a href="https://doi.org/10.1214/12-AOAS586" class="external-link">doi:10.1214/12-AOAS586</a></p>
+<p>Lloyd-Jones, Robinson, Yang and Visscher. (2018). Transformation of summary statistics from linear mixed model association on all-or-none traits to odds ratio. Genetics, 208(4), pp.1397-1408. <a href="https://doi.org/10.1534/genetics.117.300360" class="external-link">doi:10.1534/genetics.117.300360</a></p>
     </div>
 
     <div class="section level2">
@@ -141,9 +150,9 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.14614232 0.09590596 1.52380859 0.12755653 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># when phi is given, coef is transformed to logistic scale</span></span></span>
-<span class="r-in"><span><span class="fu">coef_from_z</span><span class="op">(</span><span class="va">z</span>, <span class="va">n</span>, <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, phi<span class="op">=</span><span class="va">phi</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        coef         se   method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.1471922 0.09659496 logistic</span>
+<span class="r-in"><span><span class="fu">coef_from_z</span><span class="op">(</span><span class="va">z</span>, <span class="va">n</span>, <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, phi<span class="op">=</span><span class="va">phi</span>, p<span class="op">=</span><span class="va">p</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        coef        se   method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.1472442 0.0966291 logistic</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -77,7 +77,7 @@ res = lapply( windows, function(wnd){
   res = run_imputability(df, gds, wnd, 1000, ids)
   res$window = wnd
   res
-  }) %>%
+  }) %>% 
 bind_rows
 ```
 

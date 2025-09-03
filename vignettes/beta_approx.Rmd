@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 
 Given a z-statistic, we want to obtain the coefficient value from a linear regression. Adapting the approach from [Zhu, et al (2016, Methods eqn 6)](https://doi.org/10.1038/ng.3538), we estimate the coefficient as $$\beta_{linear} = z * sd_y / (sd_x*sqrt(n + z^2)),$$ where \(sd_x\) is the standard deviation of the covariate and \(sd_y\) is the standard error of the response. For a model with no covariates, this transformation gives the exact coefficient estimate. With covariates, it is approximate.
 
-The coeffient estimate from linear regression can be converted to the logistic scale using the approach of [Pirinen, et al. (2013)](https://doi.org/10.1214/12-AOAS586) according to $$\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression. This approximates the coefficient as if the model had been fit with logistic regression.  This is implemented in `coef_from_z()`.
+The coeffient estimate from linear regression can be converted to the logistic scale using the first order approach of [Pirinen, et al. (2013)](https://doi.org/10.1214/12-AOAS586) according to $$\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),$$ where \(\phi\) is the case ratio in the logistic regression. This approximates the coefficient as if the model had been fit with logistic regression.  This is implemented in `coef_from_z()`.  We also implement a second order approach, and an independent method described by [Lloyd-Jones, et al. (2018)](https://doi.org/10.1534/genetics.117.300360).
 
 We see here that using the z-statistic to approximate the coefficient from logistic regression model is most accurate for large sample size, balanced class ratio (i.e. $\phi$ near 0.5), and small $\beta$. 
 
@@ -43,10 +43,7 @@ library(ggplot2)
 library(cowplot)
 
 # simulate data
-
-p = .5
-
-get_estimates = function(mu, beta, n){
+get_estimates = function(mu, beta, n, p, ...){
 
   x = rbinom(n, 2, p)
   x = x - mean(x)
@@ -61,7 +58,7 @@ get_estimates = function(mu, beta, n){
 
   beta_logit = coef(summary(fit))[2,]
 
-  beta_hat = coef_from_z(z, n, sd(x), phi=phi)
+  beta_hat = coef_from_z(z, n, sd(x), phi=phi, p=p,...)
 
   data.frame(beta_logit = beta_logit[1], 
             beta_hat = beta_hat[1],
@@ -70,6 +67,8 @@ get_estimates = function(mu, beta, n){
 ```
 
 ```{r sim1}
+p = .5
+
 # Sample size
 #############
 
@@ -78,7 +77,7 @@ n_array = 10^seq(2.2, 5, length.out=20)
 res = lapply(floor(n_array), function(n){
   lapply(seq(100), function(i){
     set.seed(i)
-    get_estimates(0, .1, n)
+    get_estimates(0, .1, n, p)
   }) %>%
   bind_rows %>%
   summarize(rMSE = sqrt(mean((beta_logit-coef)^2))) %>%
@@ -109,7 +108,7 @@ mu_array = seq(-2.5, 2.5, length.out=30)
 res = lapply(mu_array, function(mu){
   lapply(seq(100), function(i){
     set.seed(i)
-    get_estimates(mu, 0, n)
+    get_estimates(mu, 0, n, p)
   }) %>%
   bind_rows %>%
   summarize(rMSE = sqrt(mean((beta_logit-coef)^2)), phi = mean(phi)) %>%
@@ -132,13 +131,13 @@ fig2 = res %>%
 ######
 
 n = 10000
-mu = 0
-beta_array = seq(-1, 1, length.out=30)
+mu = -3
+beta_array = seq(-2, 2, length.out=30)
 
 res = lapply(beta_array, function(beta){
   lapply(seq(10), function(i){
     set.seed(i)
-    get_estimates(mu, beta, n)
+    get_estimates(mu, beta, n, p)
   }) %>%
   bind_rows %>%
   summarize(rMSE = sqrt(mean((beta_logit-coef)^2))) %>%
@@ -147,7 +146,7 @@ res = lapply(beta_array, function(beta){
 res = bind_rows(res)
 
 fig3 = res %>%
-  ggplot(aes(beta, rMSE )) +
+  ggplot(aes(beta, rMSE, color )) +
     geom_point() +
     thm +
     xlab(bquote(beta)) +
@@ -155,12 +154,82 @@ fig3 = res %>%
 ```
 
 
-```{r plot, cache=FALSE, fig.width=8, fig.height=3, fig.cap="**Figure 1. Accuracy of approximating $\\beta$ from z-statistics.** **A**) Sample size is varied with $\\beta=0$, $\\phi=0.5$ **B**) Case ratio is varied with $\\beta=0$, $n=10,000$ **C**) $\\beta$ is varied with $\\phi=0.5$, $n=10,000$"}
+```{r plot, cache=FALSE, fig.width=8, fig.height=2.8, fig.cap="**Figure 1. Accuracy of approximating $\\beta$ from z-statistics.** **A**) Sample size is varied with $\\beta=0$, $\\phi=0.5$ **B**) Case ratio is varied with $\\beta=0$, $n=10,000$ **C**) $\\beta$ is varied with $\\phi=0.5$, $n=10,000$"}
 plot_grid(fig1, fig2, fig3, nrow=1, labels=LETTERS[1:3])
 ```
 
 
+```{r compare}
+run_sims = function(n, mu, p){
 
+  beta_array = seq(-2, 2, length.out=30)
+
+  res1 = lapply(beta_array, function(beta){
+    lapply(seq(10), function(i){
+      set.seed(i)
+      get_estimates(mu, beta, n, p, useMethod=1)
+    }) %>%
+    bind_rows %>%
+    mutate(beta = beta, Method = "1")
+  }) %>%
+    bind_rows
+
+  res2 = lapply(beta_array, function(beta){
+    lapply(seq(10), function(i){
+      set.seed(i)
+      get_estimates(mu, beta, n, p, useMethod=2)
+    }) %>%
+    bind_rows %>%
+    mutate(beta = beta, Method = "2")
+  }) %>%
+    bind_rows
+
+  res3 = lapply(beta_array, function(beta){
+    lapply(seq(10), function(i){
+      set.seed(i)
+      get_estimates(mu, beta, n, p, useMethod=3)
+    }) %>%
+    bind_rows %>%
+    mutate(beta = beta, Method = "3")
+  }) %>%
+    bind_rows
+
+  bind_rows(res1, res2, res3) %>%
+    mutate(mu = mu, p = p)
+}
+
+res = bind_rows(
+  run_sims(10000, 0, 0.5),
+  run_sims(10000, 1, 0.5),
+  run_sims(10000, 2, 0.5),
+  run_sims(10000, 0, 0.2),
+  run_sims(10000, 1, 0.2),
+  run_sims(10000, 2, 0.2),
+  run_sims(10000, 0, 0.05),
+  run_sims(10000, 1, 0.05),
+  run_sims(10000, 2, 0.05))
+```
+
+```{r plot2, cache=FALSE, fig.width=8, fig.height=7, fig.cap="**Figure 2. Accuracy of approximating $\\beta$ from z-statistics across a range of MAF and $\\phi$ values.** Simulation were performed with $n=10,000$, while varying the MAF along rows and $\\phi$ along columns.  Estimates were generated with 3 methods."}
+res %>%
+  mutate(Method = factor(Method)) %>%
+  mutate(Method = fct_recode(Method, 
+                      "First order" = "1", 
+                      "Second order" = "2", 
+                      "Lloyd-Jones" = "3")) %>% 
+  group_by(Method, beta, mu, p) %>%
+  summarize(beta_logit = mean(beta_logit), coef = mean(coef)) %>%
+  ggplot(aes(beta_logit, coef, color=Method, shape=Method)) +
+  geom_abline(slope=1) +
+  geom_vline(xintercept=0, color="grey80") +
+  geom_hline(yintercept=0, color="grey80") +
+  geom_point() +
+  theme_classic() +
+  theme(aspect.ratio=1) +
+  xlab(bquote(true~beta)) +
+  ylab(bquote(Estimated~beta)) +
+  facet_grid(p ~ round(plogis(mu), 2))
+```
 
 
 # Session Info

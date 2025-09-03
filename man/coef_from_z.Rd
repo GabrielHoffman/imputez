@@ -4,7 +4,7 @@
 \alias{coef_from_z}
 \title{Compute coefficient estimate from z-statistic}
 \usage{
-coef_from_z(z, n, sd_x, sd_y, phi)
+coef_from_z(z, n, sd_x, sd_y, phi, p, useMethod = 2)
 }
 \arguments{
 \item{z}{z-statistic}
@@ -16,6 +16,10 @@ coef_from_z(z, n, sd_x, sd_y, phi)
 \item{sd_y}{standard deviation of response}
 
 \item{phi}{case ratio in the response for logistic regression.  If specified, \code{sd_y} is set to \code{phi} and the coefficient is transformed to the logistic scale}
+
+\item{p}{allele frequency of baseline allele}
+
+\item{useMethod}{numeric.  1: first order method from Pirinen, et al. 2: second order method from Pirinen, et al. 3: method from Lloyd-Jones, et al.}
 }
 \value{
 \code{data.frame} storing \code{coef}, \code{se}, and \code{method}
@@ -26,7 +30,7 @@ Compute coefficient estimate from regression model and its standard error give z
 \details{
 Given a z-statistic, we want to obtain the coefficient value from a linear regression.  Adapting the approach from Zhu, et al (2016, Methods eqn 6), we estimate the coefficient as \deqn{\beta_{linear} = z * sd_y / (sd_x*sqrt(n + z^2)),} where \eqn{sd_x} is the standard deviation of the covariate and \eqn{sd_y} is the standard error of the response.  For a model with no covariates, this transformation gives the exact coefficient estimate.  With covariates, it is approximate.
 
-The coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to \deqn{\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),} where \eqn{\phi} is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.
+The coeffient estimate from linear regression can be converted to the logistic scale using the approach of Pirinen, et al. (2013) according to \deqn{\beta_{logistic} = \beta_{linear} / (\phi(1-\phi)),} where \eqn{\phi} is the case ratio in the logistic regression.  This approximates the coefficient as if the model had been fit with logistic regression.  An alternative approximation is given by Lloyd-Jones, et al. (2018).
 }
 \examples{
 # Linear regression
@@ -75,11 +79,13 @@ phi = sum(y) / length(y)
 coef(summary(fit))[2,]
 
 # when phi is given, coef is transformed to logistic scale
-coef_from_z(z, n, sd(x), phi=phi)
+coef_from_z(z, n, sd(x), phi=phi, p=p)
 
 }
 \references{
 Zhu, et al. (2016). Integration of summary data from GWAS and eQTL studies predicts complex trait gene targets. Nature Genetics. 48:481–487 \doi{10.1038/ng.3538}
 
 Pirinen, Donnelly and Spencer. (2013). Efficient computation with a linear mixed model on large-scale data sets with applications to genetic studies. Ann. Appl. Stat. 7(1): 369-390 \doi{10.1214/12-AOAS586}
+
+Lloyd-Jones, Robinson, Yang and Visscher. (2018). Transformation of summary statistics from linear mixed model association on all-or-none traits to odds ratio. Genetics, 208(4), pp.1397-1408. \doi{10.1534/genetics.117.300360}
 }

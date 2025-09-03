@@ -1,3 +1,7 @@
+# imputez 1.2.5
+  - Sept 3, 2025
+  - add multiple methods in `coef_from_z()`
+
 # imputez 1.2.4
   - July 28, 2025
   - add `run_imputability()`

@@ -24,5 +24,5 @@ Genome-wide association studies (GWAS) performs tests of association across mill
 
 ### Installation
 ```r
-devtools::install_github("GabrielHoffman/imputez")
+BiocManager::install("GabrielHoffman/imputez")
 ```
